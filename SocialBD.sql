@@ -112,3 +112,4 @@ SELECT * FROM users;
 SELECT * FROM photos;
 SELECT * FROM followers;
 SELECT * FROM tags;
+SELECT * FROM photo_tags;
