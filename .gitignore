@@ -1,0 +1,63 @@
+# =========================
+# Node
+# =========================
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# =========================
+# Build
+# =========================
+dist
+build
+.next
+out
+coverage
+
+# =========================
+# Environment
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# Prisma
+# =========================
+generated/prisma
+
+# =========================
+# Logs
+# =========================
+logs
+*.log
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# =========================
+# OS
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# IDE
+# =========================
+.vscode
+.idea
+*.sublime-workspace
+
+# =========================
+# Typescript
+# =========================
+*.tsbuildinfo
+next-env.d.ts
+
+# =========================
+# Vercel
+# =========================
+.vercel
