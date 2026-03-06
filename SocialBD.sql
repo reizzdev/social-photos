@@ -105,7 +105,8 @@ CREATE TABLE photo_tags (
         ON DELETE CASCADE
 );
 
-
+ALTER TABLE photos
+ADD COLUMN censored BOOLEAN DEFAULT FALSE;
 
 
 SELECT * FROM users;

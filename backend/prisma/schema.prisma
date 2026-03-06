@@ -43,6 +43,8 @@ model photos {
   photo_tags photo_tags[]
 
   @@index([user_id], map: "idx_photos_user")
+
+  censored   Boolean  @default(false)
 }
 
 model users {

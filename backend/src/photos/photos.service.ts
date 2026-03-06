@@ -94,4 +94,25 @@ export class PhotosService {
       where: { id: photoId },
     });
   }
+
+
+ async toggleCensor(id: string) {
+
+  const photo = await this.prisma.photos.findUnique({
+    where: { id }
+  });
+
+  if (!photo) {
+    throw new Error("Photo not found");
+  }
+
+  return this.prisma.photos.update({
+    where: { id },
+    data: {
+      censored: !photo.censored
+    }
+  });
+
+}
+  
 }

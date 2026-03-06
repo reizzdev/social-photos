@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards, Req, Param, Delete } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards, Req, Param, Delete, Patch } from '@nestjs/common';
 import { PhotosService } from './photos.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -33,5 +33,11 @@ export class PhotosController {
   @Delete(':id')
   delete(@Param('id') id: string, @Req() req: any) {
     return this.photosService.delete(req.user.userId, id);
+  }
+
+
+  @Patch('censor/:id')
+  async toggleCensor(@Param('id') id: string) {
+    return this.photosService.toggleCensor(id);
   }
 }

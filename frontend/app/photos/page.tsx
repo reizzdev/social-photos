@@ -67,12 +67,28 @@ const [openTags, setOpenTags] = useState<number | null>(null);
       >
         {photos.map((photo) => (
           <div key={photo.id} className="photo-card">
-            <img
-              src={photo.image_url}
-              alt="foto"
-              style={{ width: "100%", display: "block" }}
-              onLoad={setMasonry}
-            />
+           <div className="image-wrapper">
+  <img
+    src={photo.image_url}
+    alt="foto"
+    onLoad={setMasonry}
+    className={photo.censored ? "censored" : ""}
+  />
+
+  {photo.censored && (
+    <div className="censor-overlay">
+      <button
+        onClick={(e) => {
+          const img = (e.currentTarget.parentElement?.previousElementSibling) as HTMLImageElement;
+          img.classList.remove("censored");
+          e.currentTarget.parentElement?.remove();
+        }}
+      >
+        Mostrar contenido
+      </button>
+    </div>
+  )}
+</div>
 
             {/* barra inferior */}
             <div className="photo-footer">
@@ -170,6 +186,52 @@ const [openTags, setOpenTags] = useState<number | null>(null);
         .tag:hover {
           background: #ffffff55;
         }
+
+
+
+
+
+
+
+
+
+
+
+.image-wrapper {
+  position: relative;
+}
+
+.image-wrapper img {
+  width: 100%;
+  display: block;
+  transition: 0.2s;
+}
+
+.censored {
+  filter: blur(40px);
+}
+
+.censor-overlay {
+  position: absolute;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0,0,0,0.6);
+}
+
+.censor-overlay button {
+  background: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+
       `}</style>
     </div>
   );

@@ -4,13 +4,17 @@ import { useEffect, useState } from "react";
 import { api } from "@/services/api";
 
 export default function ProfilePage() {
+
   const [user, setUser] = useState<any>(null);
   const [photos, setPhotos] = useState<any[]>([]);
   const [followers, setFollowers] = useState<any[]>([]);
   const [following, setFollowing] = useState<any[]>([]);
   const [error, setError] = useState("");
 
-  // Traer seguidores y siguiendo
+  const [imageUrl, setImageUrl] = useState("");
+  const [tags, setTags] = useState("");
+  const [message, setMessage] = useState("");
+
   const fetchFollowers = async (userId: string) => {
     try {
       const f = await api.get(`/users/followers/${userId}`);
@@ -18,31 +22,36 @@ export default function ProfilePage() {
 
       const fg = await api.get(`/users/following/${userId}`);
       setFollowing(fg.data);
+
     } catch (err) {
-      console.error("Error fetchFollowers:", err);
+      console.error(err);
     }
   };
 
-  // Traer datos del usuario logeado y sus fotos
   const fetchData = async () => {
+
     try {
+
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No token");
 
       const userRes = await api.get("/users/me", {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}` }
       });
+
       setUser(userRes.data);
 
       const photosRes = await api.get(`/photos/user/${userRes.data.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}` }
       });
+
       setPhotos(photosRes.data);
 
       fetchFollowers(userRes.data.id);
+
     } catch (err) {
-      console.error("Error fetchData:", err);
-      setError("No autorizado o error cargando datos");
+      console.error(err);
+      setError("No autorizado");
     }
   };
 
@@ -50,102 +59,218 @@ export default function ProfilePage() {
     fetchData();
   }, []);
 
-  // Seguir a otro usuario
-  const handleFollow = async (targetId: string) => {
-    try {
-      const token = localStorage.getItem("token");
-      await api.post(
-        `/users/follow/${targetId}`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      if (user) fetchFollowers(user.id);
-    } catch (err) {
-      console.error("Error handleFollow:", err);
-    }
-  };
+  // =============================
+  // SUBIR FOTO
+  // =============================
 
-  // Dejar de seguir
-  const handleUnfollow = async (targetId: string) => {
+  const handleUpload = async () => {
+
     try {
-      const token = localStorage.getItem("token");
-      await api.delete(`/users/unfollow/${targetId}`, {
-        headers: { Authorization: `Bearer ${token}` },
+
+      const tagArray = tags
+        .split(",")
+        .map(t => t.trim())
+        .filter(t => t !== "");
+
+      await api.post("/photos", {
+        image_url: imageUrl,
+        tags: tagArray
       });
-      if (user) fetchFollowers(user.id);
+
+      setImageUrl("");
+      setTags("");
+      setMessage("Foto subida 🔥");
+
+      fetchData();
+
     } catch (err) {
-      console.error("Error handleUnfollow:", err);
+
+      console.error(err);
+      setMessage("Error subiendo foto");
+
     }
+
   };
 
-  // Eliminar foto propia
+  // =============================
+  // BORRAR FOTO
+  // =============================
+
   const handleDelete = async (photoId: string) => {
+
     try {
+
       const token = localStorage.getItem("token");
+
       await api.delete(`/photos/${photoId}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}` }
       });
-      setPhotos((prev) => prev.filter((p) => p.id !== photoId));
+
+      setPhotos(prev => prev.filter(p => p.id !== photoId));
+
     } catch (err) {
-      console.error("Error handleDelete:", err);
-      alert("No se pudo eliminar la foto");
+
+      console.error(err);
+
     }
+
   };
 
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
+  // =============================
+  // CENSURAR
+  // =============================
+
+  const toggleCensor = async (photoId: string) => {
+
+    try {
+
+      await api.patch(`/photos/censor/${photoId}`);
+
+      setPhotos(prev =>
+        prev.map(p =>
+          p.id === photoId ? { ...p, censored: !p.censored } : p
+        )
+      );
+
+    } catch (err) {
+
+      console.error(err);
+
+    }
+
+  };
+
+  if (error) return <p>{error}</p>;
   if (!user) return <p>Cargando...</p>;
 
   return (
     <div style={{ padding: 40 }}>
+
       <h1>Perfil de {user.username}</h1>
-      <p>Email: {user.email}</p>
-      <p>Bio: {user.bio || "Sin bio"}</p>
+      <p>{user.email}</p>
+      <p>{user.bio || "Sin bio"}</p>
 
-      {/* Seguidores y siguiendo */}
-      <div style={{ marginTop: 30 }}>
-        <h3>Siguiendo</h3>
-        {following.map((u) => (
-          <div key={u.id}>
-            {u.username}{" "}
-            <button onClick={() => handleUnfollow(u.id)}>Dejar de seguir</button>
-          </div>
-        ))}
+      {/* =====================
+      SUBIR FOTO
+      ===================== */}
 
-        <h3>Seguidores</h3>
-        {followers.map((u) => (
-          <div key={u.id}>
-            {u.username}{" "}
-            <button onClick={() => handleFollow(u.id)}>Seguir</button>
-          </div>
-        ))}
+      <div style={{ marginTop: 40 }}>
+
+        <h2>Subir foto</h2>
+
+        <input
+          type="text"
+          placeholder="URL imagen"
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
+          style={{ width: 400 }}
+        />
+
+        <br /><br />
+
+        <input
+          type="text"
+          placeholder="tags (perro, playa)"
+          value={tags}
+          onChange={(e) => setTags(e.target.value)}
+          style={{ width: 400 }}
+        />
+
+        <br /><br />
+
+        <button onClick={handleUpload}>
+          Subir foto
+        </button>
+
+        <p>{message}</p>
+
       </div>
 
-      {/* Fotos del usuario */}
+      {/* =====================
+      FOTOS
+      ===================== */}
+
       <h2 style={{ marginTop: 40 }}>Mis Fotos</h2>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 20 }}>
-        {photos.map((photo) => (
+
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 20
+        }}
+      >
+
+        {photos.map(photo => (
+
           <div key={photo.id} style={{ width: 200 }}>
-            <img
-              src={photo.image_url}
-              alt="foto"
-              style={{ width: "100%", borderRadius: 8 }}
-            />
-            <button
-              onClick={() => handleDelete(photo.id)}
-              style={{
-                marginTop: 5,
-                backgroundColor: "red",
-                color: "white",
-                border: "none",
-                padding: "5px 10px",
-                cursor: "pointer",
-              }}
-            >
-              Eliminar
-            </button>
+
+           <div style={{ position: "relative" }}>
+
+  <img
+    src={photo.image_url}
+    alt=""
+    style={{
+      width: "100%",
+      borderRadius: 8
+    }}
+  />
+
+  {photo.censored && (
+    <div
+      style={{
+        position: "absolute",
+        top: 5,
+        left: 5,
+        background: "red",
+        color: "white",
+        padding: "3px 6px",
+        borderRadius: 5,
+        fontSize: 12,
+        fontWeight: "bold"
+      }}
+    >
+      CENSURADA
+    </div>
+  )}
+
+</div>
+
+            <div style={{ display: "flex", gap: 5 }}>
+
+              <button
+                onClick={() => handleDelete(photo.id)}
+                style={{
+                  background: "red",
+                  color: "white",
+                  border: "none",
+                  padding: "5px 10px",
+                  cursor: "pointer"
+                }}
+              >
+                Eliminar
+              </button>
+
+              <button
+                onClick={() => toggleCensor(photo.id)}
+                style={{
+                  background: "black",
+                  color: "white",
+                  border: "none",
+                  padding: "5px 10px",
+                  cursor: "pointer"
+                }}
+              >
+                {photo.censored ? "Quitar censura" : "Censurar"}
+              </button>
+
+            </div>
+
           </div>
+
         ))}
+
       </div>
+
     </div>
   );
 }
