@@ -33,6 +33,8 @@ export class UsersService {
     });
   }
 
+  
+
   async follow(userId: string, targetId: string) {
     if (userId === targetId) throw new Error("No puedes seguirte a ti mismo");
 
@@ -92,4 +94,19 @@ export class UsersService {
       },
     });
   }
+
+
+  async findByUsername(username: string) {
+  return this.prisma.users.findUnique({
+    where: { username },
+    select: {
+      id: true,
+      username: true,
+      email: true,
+      bio: true,
+      role: true,
+      created_at: true,
+    },
+  });
+}
 }

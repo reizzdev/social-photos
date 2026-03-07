@@ -39,4 +39,9 @@ export class UsersController {
   getUserById(@Param('id') id: string) {
     return this.usersService.findById(id);
   }
+
+  @Get("username/:username")
+async getByUsername(@Param("username") username: string) {
+  return this.usersService.findByUsername(username);
+}
 }

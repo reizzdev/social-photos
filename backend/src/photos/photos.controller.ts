@@ -40,4 +40,9 @@ export class PhotosController {
   async toggleCensor(@Param('id') id: string) {
     return this.photosService.toggleCensor(id);
   }
+
+  @Get("tag/:name")
+async getPhotosByTag(@Param("name") name: string) {
+  return this.photosService.getByTag(name);
+}
 }

@@ -29,7 +29,7 @@ export default function RootLayout({
             <Link href="/login" style={{ color: "white" }}>Login</Link>
             <Link href="/profile" style={{ color: "white" }}>Perfil</Link>
             <Link href="/upload" style={{ color: "white" }}>Subir Foto</Link>
-            <Link href="/photos" style={{ color: "white" }}>Todas las Fotos</Link>
+            <Link href="/" style={{ color: "white" }}>Todas las Fotos</Link>
           </nav>
         </header>
 

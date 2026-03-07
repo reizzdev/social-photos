@@ -115,4 +115,26 @@ export class PhotosService {
 
 }
   
+
+async getByTag(name: string) {
+  return this.prisma.photos.findMany({
+    where: {
+      photo_tags: {
+        some: {
+          tags: {
+            name: name,
+          },
+        },
+      },
+    },
+    include: {
+      photo_tags: {
+        include: {
+          tags: true,
+        },
+      },
+    },
+  });
+}
+
 }
