@@ -24,3 +24,97 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+  .photo-card {
+          position: relative;
+        }
+
+        .photo-footer {
+          display: flex;
+          justify-content: space-between;
+          padding: 6px 10px;
+          background: rgba(0, 0, 0, 0.6);
+          color: white;
+          font-weight: bold;
+        }
+
+        .tag-button {
+          cursor: pointer;
+        }
+
+        .tags-overlay {
+          position: absolute;
+          top: 10px;
+          left: 0;
+          background: rgba(0, 0, 0, 0.9);
+          padding: 10px;
+          margin: 0 10px;
+          border-radius: 8px;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+          opacity: 0;
+          transform: translateY(-5px);
+          transition: 0.2s ease;
+          pointer-events: none;
+        }
+
+        .tags-overlay.show {
+          opacity: 1;
+          transform: translateY(0);
+          pointer-events: auto;
+        }
+
+        .photo-card:has(.tag-button:hover) .tags-overlay {
+          opacity: 1;
+          transform: translateY(0px);
+          pointer-events: auto;
+        }
+
+        .tag {
+          background: #ffffff22;
+          border: none;
+          color: white;
+          padding: 4px 8px;
+          border-radius: 6px;
+          cursor: pointer;
+          font-size: 13px;
+          transition: 0.15s;
+        }
+
+        .tag:hover {
+          background: #ffffff55;
+        }
+
+        .image-wrapper {
+          position: relative;
+          overflow: hidden;
+        }
+
+        .image-wrapper img {
+          width: 100%;
+          display: block;
+          transition: 0.2s;
+        }
+
+        .censored {
+          filter: blur(8px);
+        }
+
+        .censor-overlay {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(0, 0, 0, 0.6);
+        }
+
+        .censor-overlay button {
+          background: white;
+          border: none;
+          padding: 8px 14px;
+          border-radius: 8px;
+          font-weight: bold;
+          cursor: pointer;
+        }
