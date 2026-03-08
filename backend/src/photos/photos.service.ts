@@ -43,42 +43,56 @@ export class PhotosService {
     return photo;
   }
 
-  async findAll() {
-    return this.prisma.photos.findMany({
-      include: {
-        users: {
-          select: {
-            id: true,
-            username: true,
-          },
+async findAll() {
+  return this.prisma.photos.findMany({
+    select: {
+      id: true,
+      user_id: true,   // 👈 ESTA ES LA SOLUCIÓN
+      image_url: true,
+      like_count: true,
+      censored: true,
+      created_at: true,
+
+      users: {
+        select: {
+          id: true,
+          username: true,
         },
+      },
 
-        photo_tags: {
-          include: {
-            tags: true
-          }
+      photo_tags: {
+        include: {
+          tags: true
         }
-
-      },
-      orderBy: {
-        created_at: 'desc',
-      },
-    });
-  }
+      }
+    },
+    orderBy: {
+      created_at: 'desc',
+    },
+  });
+}
 
   async findByUser(userId: string) {
-    return this.prisma.photos.findMany({
-      where: { user_id: userId },
-      include: {
-        photo_tags: {
-          include: {
-            tags: true
-          }
+  return this.prisma.photos.findMany({
+    where: { user_id: userId },
+
+    select: {
+      id: true,
+      image_url: true,
+      like_count: true,
+      censored: true,
+      created_at: true,
+
+      photo_tags: {
+        include: {
+          tags: true
         }
-      },
-      orderBy: { created_at: 'desc' },
-    });
-  }
+      }
+    },
+
+    orderBy: { created_at: 'desc' },
+  });
+}
 
   async delete(userId: string, photoId: string) {
 
@@ -127,7 +141,14 @@ async getByTag(name: string) {
         },
       },
     },
-    include: {
+
+    select: {
+      id: true,
+      image_url: true,
+      like_count: true,
+      censored: true,
+      created_at: true,
+
       photo_tags: {
         include: {
           tags: true,
@@ -135,6 +156,69 @@ async getByTag(name: string) {
       },
     },
   });
+}
+
+async toggleLike(photoId: string, userId: string) {
+
+  const existing = await this.prisma.likes.findUnique({
+    where: {
+      user_id_photo_id: {
+        user_id: userId,
+        photo_id: photoId
+      }
+    }
+  });
+
+  if (existing) {
+
+    await this.prisma.likes.delete({
+      where: {
+        user_id_photo_id: {
+          user_id: userId,
+          photo_id: photoId
+        }
+      }
+    });
+
+    const photo = await this.prisma.photos.update({
+      where: { id: photoId },
+      data: {
+        like_count: {
+          decrement: 1
+        }
+      }
+    });
+
+    return {
+      liked: false,
+      likes: photo.like_count
+    };
+
+  } else {
+
+    await this.prisma.likes.create({
+      data: {
+        user_id: userId,
+        photo_id: photoId
+      }
+    });
+
+    const photo = await this.prisma.photos.update({
+      where: { id: photoId },
+      data: {
+        like_count: {
+          increment: 1
+        }
+      }
+    });
+
+    return {
+      liked: true,
+      likes: photo.like_count
+    };
+
+  }
+
 }
 
 }

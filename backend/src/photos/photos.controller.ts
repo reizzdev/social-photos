@@ -45,4 +45,17 @@ export class PhotosController {
 async getPhotosByTag(@Param("name") name: string) {
   return this.photosService.getByTag(name);
 }
+
+@UseGuards(JwtAuthGuard)
+@Post("like/:photoId")
+async toggleLike(
+  @Param("photoId") photoId: string,
+  @Req() req
+) {
+
+const userId = req.user.userId;
+
+  return this.photosService.toggleLike(photoId, userId);
+
+}
 }

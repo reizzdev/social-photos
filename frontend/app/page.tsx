@@ -3,10 +3,13 @@
 import { useEffect, useState, useRef } from "react";
 import { api } from "@/services/api";
 import Link from "next/link";
+
 export default function PhotosPage() {
   const [photos, setPhotos] = useState<any[]>([]);
   const [following, setFollowing] = useState<string[]>([]);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [selectedPhoto, setSelectedPhoto] = useState<any>(null);
+
   const gridRef = useRef<HTMLDivElement>(null);
   const [openTags, setOpenTags] = useState<number | null>(null);
 
@@ -45,10 +48,32 @@ export default function PhotosPage() {
       await api.post(
         `/users/follow/${userId}`,
         {},
-        { headers: { Authorization: `Bearer ${token}` } },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       setFollowing((prev) => [...prev, userId]);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleLike = async (photoId: string) => {
+    try {
+      const token = localStorage.getItem("token");
+///api.post(`/photos/like/${photoId}`
+      const res = await api.post(`/photos/like/${photoId}`,{},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setPhotos((prev) =>
+        prev.map((p) =>
+          p.id === photoId ? { ...p, like_count: res.data.likes } : p
+        )
+      );
+
+      if (selectedPhoto && selectedPhoto.id === photoId) {
+        setSelectedPhoto({ ...selectedPhoto, like_count: res.data.likes });
+      }
     } catch (err) {
       console.error(err);
     }
@@ -69,7 +94,7 @@ export default function PhotosPage() {
       if (!img) return;
 
       const span = Math.ceil(
-        (img.getBoundingClientRect().height + rowGap) / (rowHeight + rowGap),
+        (img.getBoundingClientRect().height + rowGap) / (rowHeight + rowGap)
       );
 
       item.style.gridRowEnd = `span ${span}`;
@@ -102,9 +127,7 @@ export default function PhotosPage() {
       >
         {photos.map((photo) => {
           const isOwner = currentUser?.id === photo.user_id;
-
           const followsUser = following.includes(photo.user_id);
-
           const shouldBlur = photo.censored && !followsUser && !isOwner;
 
           return (
@@ -114,7 +137,9 @@ export default function PhotosPage() {
                   src={photo.image_url}
                   alt="foto"
                   onLoad={setMasonry}
+                  onClick={() => setSelectedPhoto(photo)}
                   className={shouldBlur ? "censored" : ""}
+                  style={{ cursor: "pointer" }}
                 />
 
                 {shouldBlur && (
@@ -127,7 +152,17 @@ export default function PhotosPage() {
               </div>
 
               <div className="photo-footer">
-                <span>{photo.users?.username}</span>
+                <Link
+  href={`/${photo.users?.username}`}
+  style={{ fontWeight: "bold", cursor: "pointer" }}
+>
+  {photo.users?.username}
+</Link>
+
+                <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                  <button onClick={() => handleLike(photo.id)}>❤️</button>
+                  <span>{photo.like_count}</span>
+                </div>
 
                 <button
                   className="tag-button"
@@ -157,7 +192,52 @@ export default function PhotosPage() {
         })}
       </div>
 
+      {selectedPhoto && (
+        <div
+          onClick={() => setSelectedPhoto(null)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.85)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: "90%",
+              maxHeight: "90%",
+              textAlign: "center",
+            }}
+          >
+            <img
+              src={selectedPhoto.image_url}
+              style={{
+                maxHeight: "80vh",
+                borderRadius: 10,
+              }}
+            />
 
+            <div
+              style={{
+                marginTop: 15,
+                display: "flex",
+                justifyContent: "center",
+                gap: 15,
+                alignItems: "center",
+                color: "white",
+                fontSize: 18,
+              }}
+            >
+              <button onClick={() => handleLike(selectedPhoto.id)}>❤️</button>
+              <span>{selectedPhoto.like_count}</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

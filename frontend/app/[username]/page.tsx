@@ -18,6 +18,7 @@ export default function UserProfilePage() {
   const [showFollowing, setShowFollowing] = useState(false);
 
   const [error, setError] = useState("");
+  const [selectedPhoto,setSelectedPhoto] = useState<any>(null);
 
   const fetchFollowers = async (userId: string) => {
     try {
@@ -96,6 +97,40 @@ export default function UserProfilePage() {
   if (!user || !me) return <p>Cargando...</p>;
 
   const isMyProfile = user.id === me.id;
+
+const handleLike = async (photoId: string) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await api.post(`/photos/like/${photoId}`, {}, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    const newLikes = res.data.likes;
+
+    // actualizar grid
+    setPhotos(prev =>
+      prev.map(p =>
+        p.id === photoId
+          ? { ...p, like_count: newLikes }
+          : p
+      )
+    );
+
+    // actualizar modal
+    if (selectedPhoto && selectedPhoto.id === photoId) {
+      setSelectedPhoto({
+        ...selectedPhoto,
+        like_count: newLikes
+      });
+    }
+
+  } catch (err) {
+    console.error(err);
+  } 
+};
 
   return (
     <div style={{ padding: 40, maxWidth: 900, margin: "auto" }}>
@@ -216,18 +251,115 @@ export default function UserProfilePage() {
         }}
       >
         {photos.map((photo) => (
-          <div key={photo.id}>
-            <img
-              src={photo.image_url}
-              style={{
-                width: "100%",
-                borderRadius: 6,
-                aspectRatio: "1/1",
-                objectFit: "cover",
-              }}
-            />
-          </div>
-        ))}
+
+  <div
+    key={photo.id}
+    style={{cursor:"pointer"}}
+  >
+
+    <img
+      src={photo.image_url}
+      onClick={()=>setSelectedPhoto(photo)}
+      style={{
+        width:"100%",
+        borderRadius:6,
+        aspectRatio:"1/1",
+        objectFit:"cover"
+      }}
+    />
+
+    <div
+      style={{
+        display:"flex",
+        justifyContent:"space-between",
+        marginTop:4,
+        fontSize:14
+      }}
+    >
+
+      <button
+        onClick={()=>handleLike(photo.id)}
+        style={{
+          border:"none",
+          background:"none",
+          cursor:"pointer"
+        }}
+      >
+        ❤️
+      </button>
+
+      <span>
+        {photo.like_count || 0}
+      </span>
+
+    </div>
+
+  </div>
+
+))}
+
+{selectedPhoto && (
+
+<div
+  onClick={()=>setSelectedPhoto(null)}
+  style={{
+    position:"fixed",
+    inset:0,
+    background:"rgba(0,0,0,0.85)",
+    display:"flex",
+    alignItems:"center",
+    justifyContent:"center",
+    zIndex:1000
+  }}
+>
+
+<div
+  onClick={(e)=>e.stopPropagation()}
+  style={{maxWidth:"90vw"}}
+>
+
+<img
+  src={selectedPhoto.image_url}
+  style={{
+    maxHeight:"80vh",
+    borderRadius:10
+  }}
+/>
+
+<div
+  style={{
+    marginTop:10,
+    display:"flex",
+    justifyContent:"space-between",
+    color:"white"
+  }}
+>
+
+<button
+  onClick={()=>handleLike(selectedPhoto.id)}
+  style={{
+    background:"none",
+    border:"none",
+    fontSize:20,
+    cursor:"pointer",
+    color:"white"
+  }}
+>
+❤️
+</button>
+
+<span>
+{selectedPhoto?.like_count || 0} likes
+</span>
+
+</div>
+
+</div>
+
+</div>
+
+)}
+
       </div>
     </div>
   );
