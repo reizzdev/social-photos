@@ -12,7 +12,7 @@ export default function PhotosPage() {
 
   const gridRef = useRef<HTMLDivElement>(null);
   const [openTags, setOpenTags] = useState<number | null>(null);
-
+  const [showAuthModal, setShowAuthModal] = useState(false);
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -48,7 +48,7 @@ export default function PhotosPage() {
       await api.post(
         `/users/follow/${userId}`,
         {},
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       setFollowing((prev) => [...prev, userId]);
@@ -60,15 +60,17 @@ export default function PhotosPage() {
   const handleLike = async (photoId: string) => {
     try {
       const token = localStorage.getItem("token");
-///api.post(`/photos/like/${photoId}`
-      const res = await api.post(`/photos/like/${photoId}`,{},
-        { headers: { Authorization: `Bearer ${token}` } }
+      ///api.post(`/photos/like/${photoId}`
+      const res = await api.post(
+        `/photos/like/${photoId}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       setPhotos((prev) =>
         prev.map((p) =>
-          p.id === photoId ? { ...p, like_count: res.data.likes } : p
-        )
+          p.id === photoId ? { ...p, like_count: res.data.likes } : p,
+        ),
       );
 
       if (selectedPhoto && selectedPhoto.id === photoId) {
@@ -94,7 +96,7 @@ export default function PhotosPage() {
       if (!img) return;
 
       const span = Math.ceil(
-        (img.getBoundingClientRect().height + rowGap) / (rowHeight + rowGap)
+        (img.getBoundingClientRect().height + rowGap) / (rowHeight + rowGap),
       );
 
       item.style.gridRowEnd = `span ${span}`;
@@ -144,20 +146,26 @@ export default function PhotosPage() {
 
                 {shouldBlur && (
                   <div className="censor-overlay text-black">
-                    <button onClick={() => handleFollow(photo.user_id)}>
-                      Seguir para ver
-                    </button>
+                    {currentUser ? (
+                      <button onClick={() => handleFollow(photo.user_id)}>
+                        Seguir para ver
+                      </button>
+                    ) : (
+                      <button onClick={() => setShowAuthModal(true)}>
+                        Registrate para ver
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
 
               <div className="photo-footer">
                 <Link
-  href={`/${photo.users?.username}`}
-  style={{ fontWeight: "bold", cursor: "pointer" }}
->
-  {photo.users?.username}
-</Link>
+                  href={`/${photo.users?.username}`}
+                  style={{ fontWeight: "bold", cursor: "pointer" }}
+                >
+                  {photo.users?.username}
+                </Link>
 
                 <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
                   <button onClick={() => handleLike(photo.id)}>❤️</button>
@@ -235,6 +243,53 @@ export default function PhotosPage() {
               <button onClick={() => handleLike(selectedPhoto.id)}>❤️</button>
               <span>{selectedPhoto.like_count}</span>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showAuthModal && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.8)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 2000,
+          }}
+          onClick={() => setShowAuthModal(false)}
+        >
+          <div
+            style={{
+              background: "black",
+              padding: 30,
+              borderRadius: 10,
+              textAlign: "center",
+              minWidth: 300,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2>Crear cuenta</h2>
+
+            <p>Debes tener una cuenta para ver fotos privadas</p>
+
+            <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+              <Link href="/register">
+                <button>Registrarse</button>
+              </Link>
+
+              <Link href="/login">
+                <button>Iniciar sesión</button>
+              </Link>
+            </div>
+
+            <button
+              style={{ marginTop: 15 }}
+              onClick={() => setShowAuthModal(false)}
+            >
+              Cerrar
+            </button>
           </div>
         </div>
       )}

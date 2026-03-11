@@ -25,6 +25,70 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+
+.navbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:16px 40px;
+background:#111;
+color:white;
+position:sticky;
+top:0;
+z-index:100;
+}
+
+.nav-left{
+display:flex;
+align-items:center;
+gap:20px;
+}
+
+.logo{
+font-size:20px;
+font-weight:bold;
+text-decoration:none;
+color:white;
+}
+
+.nav-center{
+flex:1;
+display:flex;
+justify-content:center;
+}
+
+.search{
+width:300px;
+padding:8px 12px;
+border-radius:20px;
+border:none;
+outline:none;
+}
+
+.nav-right{
+display:flex;
+align-items:center;
+gap:20px;
+}
+
+.navbar a{
+color:white;
+text-decoration:none;
+font-size:14px;
+}
+
+.logout{
+background:#ff4d4d;
+border:none;
+padding:6px 12px;
+border-radius:6px;
+cursor:pointer;
+}
+
+.main{
+padding:30px;
+}
+
   .photo-card {
           position: relative;
         }
@@ -118,3 +182,5 @@ body {
           font-weight: bold;
           cursor: pointer;
         }
+
+        

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { api } from "@/services/api";
 import { useParams } from "next/navigation";
-
+import PhotoGrid from "@/components/profile/PhotoGrid";
 export default function TagPage() {
   const { name } = useParams();
   const [photos, setPhotos] = useState<any[]>([]);

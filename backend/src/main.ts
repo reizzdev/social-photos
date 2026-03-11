@@ -5,10 +5,10 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: 'http://localhost:3001', // puerto donde correrá Next
+    origin: 'http://localhost:'+process.env.PORT_FRONTEND, // puerto donde correrá Next
     credentials: true,
   });
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT_BACKEND ?? 4000);
 }
 bootstrap();

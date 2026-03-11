@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { CreateUserDto } from './dto/createUser.dto';
 
 @Injectable()
 export class UsersService {
@@ -11,12 +12,10 @@ export class UsersService {
     });
   }
 
-  async createUser(data: {
-    username: string;
-    email: string;
-    password: string;
-  }) {
-    return this.prisma.users.create({ data });
+  async createUser(dto: CreateUserDto) {
+    return this.prisma.users.create({
+      data: dto,
+    });
   }
 
   async getProfile(id: string) {
@@ -33,10 +32,8 @@ export class UsersService {
     });
   }
 
-  
-
   async follow(userId: string, targetId: string) {
-    if (userId === targetId) throw new Error("No puedes seguirte a ti mismo");
+    if (userId === targetId) throw new Error('No puedes seguirte a ti mismo');
 
     return this.prisma.followers.create({
       data: {
@@ -63,7 +60,7 @@ export class UsersService {
       include: { users_followers_follower_idTousers: true },
     });
 
-    return followers.map(f => ({
+    return followers.map((f) => ({
       id: f.follower_id,
       username: f.users_followers_follower_idTousers.username,
     }));
@@ -75,7 +72,7 @@ export class UsersService {
       include: { users_followers_following_idTousers: true },
     });
 
-    return following.map(f => ({
+    return following.map((f) => ({
       id: f.following_id,
       username: f.users_followers_following_idTousers.username,
     }));
@@ -95,18 +92,17 @@ export class UsersService {
     });
   }
 
-
   async findByUsername(username: string) {
-  return this.prisma.users.findUnique({
-    where: { username },
-    select: {
-      id: true,
-      username: true,
-      email: true,
-      bio: true,
-      role: true,
-      created_at: true,
-    },
-  });
-}
+    return this.prisma.users.findUnique({
+      where: { username },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        bio: true,
+        role: true,
+        created_at: true,
+      },
+    });
+  }
 }
