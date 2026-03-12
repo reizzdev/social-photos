@@ -72,27 +72,35 @@ export class PhotosService {
     });
   }
 
-  async findByUser(userId: string) {
-    return this.prisma.photos.findMany({
-      where: { user_id: userId },
+ async findByUser(userId: string) {
+  return this.prisma.photos.findMany({
+    where: { user_id: userId },
 
-      select: {
-        id: true,
-        image_url: true,
-        like_count: true,
-        censored: true,
-        created_at: true,
+    select: {
+      id: true,
+      user_id: true, // 👈 NECESARIO
+      image_url: true,
+      like_count: true,
+      censored: true,
+      created_at: true,
 
-        photo_tags: {
-          include: {
-            tags: true,
-          },
+      users: {       // 👈 NECESARIO
+        select: {
+          id: true,
+          username: true,
         },
       },
 
-      orderBy: { created_at: 'desc' },
-    });
-  }
+      photo_tags: {
+        include: {
+          tags: true,
+        },
+      },
+    },
+
+    orderBy: { created_at: 'desc' },
+  });
+}
 
   async delete(userId: string, photoId: string) {
     const photo = await this.prisma.photos.findUnique({

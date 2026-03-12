@@ -20,19 +20,19 @@ export default function PhotosPage() {
         setPhotos(res.data);
 
         const token = localStorage.getItem("token");
+        if (!token) return;
 
-        if (token) {
-          const me = await api.get("/users/me", {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+        const me = await api.get("/users/me", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setCurrentUser(me.data);
 
-          setCurrentUser(me.data);
+        const followingRes = await api.get(`/users/following/${me.data.id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-          const followingRes = await api.get(`/users/following/${me.data.id}`);
-          const ids = followingRes.data.map((u: any) => u.id);
-
-          setFollowing(ids);
-        }
+        const ids = followingRes.data.map((u: any) => u.id);
+        setFollowing(ids);
       } catch (err) {
         console.error(err);
       }
@@ -44,6 +44,10 @@ export default function PhotosPage() {
   const handleFollow = async (userId: string) => {
     try {
       const token = localStorage.getItem("token");
+      if (!token) {
+        setShowAuthModal(true);
+        return;
+      }
 
       await api.post(
         `/users/follow/${userId}`,
@@ -51,7 +55,10 @@ export default function PhotosPage() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      setFollowing((prev) => [...prev, userId]);
+      // ✅ Actualiza el estado directamente aquí
+      setFollowing((prev) =>
+        prev.includes(userId) ? prev : [...prev, userId]
+      );
     } catch (err) {
       console.error(err);
     }
@@ -60,7 +67,6 @@ export default function PhotosPage() {
   const handleLike = async (photoId: string) => {
     try {
       const token = localStorage.getItem("token");
-
       const res = await api.post(
         `/photos/like/${photoId}`,
         {},
@@ -91,6 +97,7 @@ export default function PhotosPage() {
         showUsername
         currentUser={currentUser}
         following={following}
+        setFollowing={setFollowing} // ✅ AGREGADO
         handleLike={handleLike}
         handleFollow={handleFollow}
         setSelectedPhoto={setSelectedPhoto}
@@ -129,23 +136,12 @@ export default function PhotosPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <h2>Crear cuenta</h2>
-
             <p>Debes tener una cuenta para ver fotos privadas</p>
-
             <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
-              <a href="/register">
-                <button>Registrarse</button>
-              </a>
-
-              <a href="/login">
-                <button>Iniciar sesión</button>
-              </a>
+              <a href="/register"><button>Registrarse</button></a>
+              <a href="/login"><button>Iniciar sesión</button></a>
             </div>
-
-            <button
-              style={{ marginTop: 15 }}
-              onClick={() => setShowAuthModal(false)}
-            >
+            <button style={{ marginTop: 15 }} onClick={() => setShowAuthModal(false)}>
               Cerrar
             </button>
           </div>

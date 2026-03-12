@@ -12,10 +12,7 @@ import {
   unfollowUser,
 } from "@/services/useService";
 
-import {
-  getPhotosByUser,
-  toggleLike,
-} from "@/services/photoService";
+import { getPhotosByUser, toggleLike } from "@/services/photoService";
 
 export function useUserProfile() {
   const { username } = useParams();
@@ -27,18 +24,33 @@ export function useUserProfile() {
   const [followers, setFollowers] = useState<any[]>([]);
   const [following, setFollowing] = useState<any[]>([]);
 
-  const [selectedPhoto, setSelectedPhoto] = useState<any>(null);
+  // ✅ NUEVO: IDs que el usuario logueado sigue
+  const [myFollowingIds, setMyFollowingIds] = useState<string[]>([]);
 
+  const [selectedPhoto, setSelectedPhoto] = useState<any>(null);
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const fetchData = async () => {
     try {
-      const meData = await getMe();
-      setMe(meData);
+      let meData = null;
+
+      try {
+        meData = await getMe();
+        setMe(meData);
+
+        // ✅ Carga los IDs que el usuario logueado sigue
+        if (meData?.id) {
+          const myFollowing = await getFollowing(meData.id);
+          const ids = myFollowing.map((u: any) => u.id);
+          setMyFollowingIds(ids);
+        }
+      } catch {
+        setMe(null);
+        setMyFollowingIds([]);
+      }
 
       const userData = await getUserByUsername(username as string);
       setUser(userData);
@@ -66,7 +78,7 @@ export function useUserProfile() {
 
   const isFollowing = (targetId: string) => {
     if (!me) return false;
-    return me.id !== targetId && followers.some((f) => f.id === me.id);
+    return followers.some((f) => f.id === me.id);
   };
 
   const handleFollow = async (targetId: string) => {
@@ -74,6 +86,11 @@ export function useUserProfile() {
 
     const newFollowers = await getFollowers(targetId);
     setFollowers(newFollowers);
+
+    // ✅ Actualiza los IDs del usuario logueado inmediatamente
+    setMyFollowingIds((prev) =>
+      prev.includes(targetId) ? prev : [...prev, targetId]
+    );
   };
 
   const handleUnfollow = async (targetId: string) => {
@@ -81,6 +98,9 @@ export function useUserProfile() {
 
     const newFollowers = await getFollowers(targetId);
     setFollowers(newFollowers);
+
+    // ✅ Remueve el ID al dejar de seguir
+    setMyFollowingIds((prev) => prev.filter((id) => id !== targetId));
   };
 
   const handleLike = async (photoId: string) => {
@@ -95,12 +115,8 @@ export function useUserProfile() {
       );
 
       if (selectedPhoto && selectedPhoto.id === photoId) {
-        setSelectedPhoto({
-          ...selectedPhoto,
-          like_count: newLikes,
-        });
+        setSelectedPhoto({ ...selectedPhoto, like_count: newLikes });
       }
-
     } catch (err) {
       console.error(err);
     }
@@ -112,6 +128,7 @@ export function useUserProfile() {
     photos,
     followers,
     following,
+    myFollowingIds, // ✅ Exportado para usarlo en ProfilePage
 
     selectedPhoto,
     setSelectedPhoto,
