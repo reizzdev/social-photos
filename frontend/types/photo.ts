@@ -3,6 +3,19 @@ export interface Photo {
   image_url: string;
   censored: boolean;
   like_count?: number;
+
+  user_id: string;
+
+  users?: {
+    username: string;
+  };
+
+  photo_tags?: {
+    tag_id: string;
+    tags: {
+      name: string;
+    };
+  }[];
 }
 
 export interface PhotoCardProps {
@@ -15,6 +28,17 @@ export interface PhotoGridProps {
   photos: Photo[];
   setSelectedPhoto: (photo: Photo) => void;
   handleLike: (id: string) => void;
+
+  showUsername?: boolean;
+  enableCensorship?: boolean;
+  enableFollowUnlock?: boolean;
+  masonry?: boolean;
+
+  currentUser?: any;
+  following?: string[];
+
+  handleFollow?: (id: string) => void;
+  setShowAuthModal?: (v: boolean) => void;
 }
 
 export interface PhotoModalProps {

@@ -1,5 +1,7 @@
 "use client";
 
+// ESTO ES PARA EL PROFILE DONDE SE PUEDE CENSURAR O ELIMINAR FOTOS
+
 import { api } from "@/services/api";
 import { PhotoCardProps } from "@/types/photo";
 
@@ -25,11 +27,7 @@ export default function PhotoCard({ photo, onDelete, onToggle }: PhotoCardProps)
   return (
     <div className="w-[200px]">
       <div className="relative">
-        <img
-          src={photo.image_url}
-          alt=""
-          className="w-full rounded-lg"
-        />
+        <img src={photo.image_url} alt="" className="w-full rounded-lg" />
 
         {photo.censored && (
           <div className="absolute top-1 left-1 bg-red-600 text-white px-2 py-[2px] rounded text-xs font-bold">

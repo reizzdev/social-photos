@@ -1,7 +1,6 @@
 "use client";
 
 import { useUserProfile } from "@/hooks/useUserProfile";
-
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import ProfileStats from "@/components/profile/ProfileStats";
 import FollowersList from "@/components/profile/FollowersList";
@@ -18,10 +17,12 @@ export default function ProfilePage() {
     <div className="max-w-3xl mx-auto p-4">
 
       <ProfileHeader {...profile} />
-
       <ProfileStats {...profile} />
-
-      <PhotoGrid {...profile} />
+      <PhotoGrid
+  photos={profile.photos}
+  setSelectedPhoto={profile.setSelectedPhoto}
+  handleLike={profile.handleLike}
+/>
 
       {profile.selectedPhoto && (
         <PhotoModal
@@ -46,7 +47,6 @@ export default function ProfilePage() {
           onClose={() => profile.setShowFollowing(false)}
         />
       )}
-
     </div>
   );
 }

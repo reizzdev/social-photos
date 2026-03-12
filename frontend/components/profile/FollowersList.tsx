@@ -1,5 +1,7 @@
 "use client";
 
+// ESTO ES PARA LAS LISTAS DE LOS FOLLOWS
+
 import { FollowersListProps } from "@/types/user";
 
 export default function FollowersList({ title, users, onClose }: FollowersListProps) {
@@ -15,11 +17,7 @@ export default function FollowersList({ title, users, onClose }: FollowersListPr
         <div className="space-y-2 max-h-64 overflow-y-auto">
           {users.map((u) => (
             <div key={u.id} className="flex items-center gap-3">
-              <img
-                src={u.avatar_url || "/default-avatar.png"}
-                className="w-8 h-8 rounded-full"
-              />
-
+              <img src={u.avatar_url || "/default-avatar.png"} className="w-8 h-8 rounded-full" />
               <span>{u.username}</span>
             </div>
           ))}

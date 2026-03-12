@@ -125,33 +125,45 @@ export class PhotosService {
     });
   }
 
-  async getByTag(name: string) {
-    return this.prisma.photos.findMany({
-      where: {
-        photo_tags: {
-          some: {
-            tags: {
-              name: name,
-            },
+async getByTag(name: string) {
+  return this.prisma.photos.findMany({
+    where: {
+      photo_tags: {
+        some: {
+          tags: {
+            name: name,
           },
         },
       },
+    },
 
-      select: {
-        id: true,
-        image_url: true,
-        like_count: true,
-        censored: true,
-        created_at: true,
+    select: {
+      id: true,
+      user_id: true, // 👈 SOLUCIÓN
+      image_url: true,
+      like_count: true,
+      censored: true,
+      created_at: true,
 
-        photo_tags: {
-          include: {
-            tags: true,
-          },
+      users: {
+        select: {
+          id: true,
+          username: true,
         },
       },
-    });
-  }
+
+      photo_tags: {
+        include: {
+          tags: true,
+        },
+      },
+    },
+
+    orderBy: {
+      created_at: "desc",
+    },
+  });
+}
 
   async toggleLike(photoId: string, userId: string) {
     const existing = await this.prisma.likes.findUnique({

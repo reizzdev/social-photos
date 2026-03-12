@@ -3,42 +3,160 @@
 import { useEffect, useState } from "react";
 import { api } from "@/services/api";
 import { useParams } from "next/navigation";
+
 import PhotoGrid from "@/components/profile/PhotoGrid";
+import PhotoModal from "@/components/profile/PhotoModal";
+
 export default function TagPage() {
   const { name } = useParams();
+
   const [photos, setPhotos] = useState<any[]>([]);
+  const [following, setFollowing] = useState<string[]>([]);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [selectedPhoto, setSelectedPhoto] = useState<any | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [error, setError] = useState("");
 
-  const fetchPhotos = async () => {
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const res = await api.get(`/photos/tag/${name}`);
+        setPhotos(res.data);
+
+        const token = localStorage.getItem("token");
+
+        if (token) {
+          const me = await api.get("/users/me", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          setCurrentUser(me.data);
+
+          const followingRes = await api.get(`/users/following/${me.data.id}`);
+          const ids = followingRes.data.map((u: any) => u.id);
+
+          setFollowing(ids);
+        }
+      } catch (err) {
+        console.error(err);
+        setError("Error cargando fotos");
+      }
+    };
+
+    if (name) loadData();
+  }, [name]);
+
+  const handleFollow = async (userId: string) => {
     try {
-      const res = await api.get(`/photos/tag/${name}`);
-      setPhotos(res.data);
+      const token = localStorage.getItem("token");
+
+      await api.post(
+        `/users/follow/${userId}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setFollowing((prev) => [...prev, userId]);
     } catch (err) {
       console.error(err);
-      setError("Error cargando fotos");
     }
   };
 
-  useEffect(() => {
-    if (name) fetchPhotos();
-  }, [name]);
+  const handleLike = async (photoId: string) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await api.post(
+        `/photos/like/${photoId}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setPhotos((prev) =>
+        prev.map((p) =>
+          p.id === photoId ? { ...p, like_count: res.data.likes } : p
+        )
+      );
+
+      if (selectedPhoto && selectedPhoto.id === photoId) {
+        setSelectedPhoto({ ...selectedPhoto, like_count: res.data.likes });
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   if (error) return <p>{error}</p>;
 
   return (
     <div style={{ padding: 40 }}>
-      <h1># {name}</h1>
+      <h1 style={{ marginBottom: 20 }}>#{name}</h1>
 
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 20 }}>
-        {photos.map((photo) => (
-          <div key={photo.id} style={{ width: 200 }}>
-            <img
-              src={photo.image_url}
-              style={{ width: "100%", borderRadius: 8 }}
-            />
+      <PhotoGrid
+        photos={photos}
+        masonry
+        currentUser={currentUser}
+        following={following}
+        handleLike={handleLike}
+        handleFollow={handleFollow}
+        setSelectedPhoto={setSelectedPhoto}
+        setShowAuthModal={setShowAuthModal}
+      />
+
+      {selectedPhoto && (
+        <PhotoModal
+          photo={selectedPhoto}
+          onClose={() => setSelectedPhoto(null)}
+          handleLike={handleLike}
+        />
+      )}
+
+      {showAuthModal && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.8)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 2000,
+          }}
+          onClick={() => setShowAuthModal(false)}
+        >
+          <div
+            style={{
+              background: "black",
+              padding: 30,
+              borderRadius: 10,
+              textAlign: "center",
+              minWidth: 300,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2>Crear cuenta</h2>
+
+            <p>Debes tener una cuenta para ver fotos privadas</p>
+
+            <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+              <a href="/register">
+                <button>Registrarse</button>
+              </a>
+
+              <a href="/login">
+                <button>Iniciar sesión</button>
+              </a>
+            </div>
+
+            <button
+              style={{ marginTop: 15 }}
+              onClick={() => setShowAuthModal(false)}
+            >
+              Cerrar
+            </button>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

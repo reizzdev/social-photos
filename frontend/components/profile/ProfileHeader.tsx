@@ -1,5 +1,7 @@
 "use client";
 
+// ESTO ES LA ESTRUCTURA DE LOS PERFILES FOTO, NOMBRE DE USUARIO Y EL BOTON DE (SEGUIR O DEJAR DE SEGUIR)
+
 import { ProfileHeaderProps } from "@/types/user";
 
 export default function ProfileHeader({user, me, isFollowing, handleFollow, handleUnfollow}: ProfileHeaderProps) {
@@ -9,12 +11,10 @@ export default function ProfileHeader({user, me, isFollowing, handleFollow, hand
 
   return (
     <div className="flex items-center gap-6 mb-8">
-
       <img
         src={user.avatar_url || "/default-avatar.png"}
         className="w-24 h-24 rounded-full object-cover border"
       />
-
       <div>
         <h1 className="text-2xl font-bold">{user.username}</h1>
 
