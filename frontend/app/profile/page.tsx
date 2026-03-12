@@ -31,7 +31,10 @@ export default function ProfilePage() {
 
       const userRes = await api.get("/users/me", getAuth());
       setUser(userRes.data);
-      const photosRes = await api.get(`/photos/user/${userRes.data.id}`, getAuth());
+      const photosRes = await api.get(
+        `/photos/user/${userRes.data.id}`,
+        getAuth(),
+      );
       setPhotos(photosRes.data);
 
       const f = await api.get(`/users/followers/${userRes.data.id}`);
@@ -54,7 +57,6 @@ export default function ProfilePage() {
 
   return (
     <div className="p-16">
-      
       <ProfileHeader
         user={user}
         me={user}

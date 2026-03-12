@@ -109,6 +109,8 @@ ALTER TABLE photos
 ADD COLUMN censored BOOLEAN DEFAULT FALSE;
 
 
+ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT;
+
 SELECT * FROM users;
 SELECT * FROM photos;
 SELECT * FROM followers;

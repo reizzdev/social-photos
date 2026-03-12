@@ -19,7 +19,7 @@ export default function ProfilePage() {
     if (profile.following) {
       // profile.following puede ser array de objetos o de strings según tu hook
       const ids = profile.following.map((u: any) =>
-        typeof u === "string" ? u : u.id
+        typeof u === "string" ? u : u.id,
       );
       setFollowing(ids);
     }
@@ -33,16 +33,16 @@ export default function ProfilePage() {
       <ProfileHeader {...profile} />
       <ProfileStats {...profile} />
 
-   <PhotoGrid
-  photos={profile.photos}
-  currentUser={profile.me}
-  following={profile.myFollowingIds}  // ✅ ESTE ES EL CAMBIO
-  handleLike={profile.handleLike}
-  handleFollow={profile.handleFollow}
-  setSelectedPhoto={profile.setSelectedPhoto}
-  setShowAuthModal={setShowAuthModal}
-  showUsername
-/>
+      <PhotoGrid
+        photos={profile.photos}
+        currentUser={profile.me}
+        following={profile.myFollowingIds} // ✅ ESTE ES EL CAMBIO
+        handleLike={profile.handleLike}
+        handleFollow={profile.handleFollow}
+        setSelectedPhoto={profile.setSelectedPhoto}
+        setShowAuthModal={setShowAuthModal}
+        showUsername
+      />
 
       {profile.selectedPhoto && (
         <PhotoModal
@@ -94,10 +94,17 @@ export default function ProfilePage() {
             <h2>Crear cuenta</h2>
             <p>Debes tener una cuenta para ver fotos privadas</p>
             <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
-              <a href="/register"><button>Registrarse</button></a>
-              <a href="/login"><button>Iniciar sesión</button></a>
+              <a href="/register">
+                <button>Registrarse</button>
+              </a>
+              <a href="/login">
+                <button>Iniciar sesión</button>
+              </a>
             </div>
-            <button style={{ marginTop: 15 }} onClick={() => setShowAuthModal(false)}>
+            <button
+              style={{ marginTop: 15 }}
+              onClick={() => setShowAuthModal(false)}
+            >
               Cerrar
             </button>
           </div>
