@@ -10,7 +10,6 @@ export class UsersController {
   @Get('me')
   getProfile(
     @Req() req: any) {
-    // req.user.userId viene de JwtStrategy, ya es UUID válido
     return this.usersService.getProfile(req.user.userId);
   }
 
@@ -49,7 +48,7 @@ export class UsersController {
   }
 
   @Get("username/:username")
-async getByUsername(
+  async getByUsername(
   @Param("username") username: string) {
   return this.usersService.findByUsername(username);
 }

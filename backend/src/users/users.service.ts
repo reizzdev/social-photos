@@ -64,7 +64,7 @@ export class UsersService {
     return followers.map((f) => ({
       id: f.follower_id,
       username: f.users_followers_follower_idTousers.username,
-      avatar_url: f.users_followers_follower_idTousers.avatar_url, // ✅
+      avatar_url: f.users_followers_follower_idTousers.avatar_url,
     }));
   }
 
@@ -77,7 +77,7 @@ export class UsersService {
     return following.map((f) => ({
       id: f.following_id,
       username: f.users_followers_following_idTousers.username,
-      avatar_url: f.users_followers_following_idTousers.avatar_url, // ✅
+      avatar_url: f.users_followers_following_idTousers.avatar_url,
     }));
   }
 
@@ -91,7 +91,7 @@ export class UsersService {
         bio: true,
         role: true,
         created_at: true,
-        avatar_url: true, // ✅
+        avatar_url: true,
       },
     });
   }
@@ -106,7 +106,7 @@ export class UsersService {
         bio: true,
         role: true,
         created_at: true,
-        avatar_url: true, // ✅
+        avatar_url: true,
       },
     });
   }

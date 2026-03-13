@@ -1,23 +1,35 @@
 "use client";
 
-// ESTO ES LA BARRA DE DATOS DE LOS PERFILES OSEA fotos / seguidores / siguiendo
-
 import { ProfileStatsProps } from "@/types/ui";
 
-export default function ProfileStats({photos, followers, following, setShowFollowers, setShowFollowing}: ProfileStatsProps) {
+export default function ProfileStats({ photos, followers, following, setShowFollowers, setShowFollowing }: ProfileStatsProps) {
   return (
-    <div className="flex gap-6 mb-6 text-sm">
-      <span>
-        <b>{photos.length}</b> fotos
-      </span>
+    <div className="flex items-center gap-1 mb-6">
 
-      <span className="cursor-pointer" onClick={() => setShowFollowers(true)}>
-        <b>{followers.length}</b> seguidores
-      </span>
+      <div className="flex items-baseline gap-1 px-4 py-2">
+        <span className="text-sm font-semibold text-neutral-900 dark:text-white">{photos.length}</span>
+        <span className="text-sm text-neutral-500 dark:text-neutral-400">fotos</span>
+      </div>
 
-      <span className="cursor-pointer" onClick={() => setShowFollowing(true)}>
-        <b>{following.length}</b> siguiendo
-      </span>
+      <div className="w-px h-4 bg-neutral-200 dark:bg-neutral-700" />
+
+      <button
+        onClick={() => setShowFollowers(true)}
+        className="flex items-baseline gap-1 px-4 py-2 rounded-lg cursor-pointer"
+      >
+        <span className="text-sm font-semibold text-neutral-900 dark:text-white">{followers.length}</span>
+        <span className="text-sm text-neutral-500 dark:text-neutral-400">seguidores</span>
+      </button>
+
+      <div className="w-px h-4 bg-neutral-200 dark:bg-neutral-700" />
+
+      <button
+        onClick={() => setShowFollowing(true)}
+        className="flex items-baseline gap-1 px-4 py-2 rounded-lg cursor-pointer"
+      >
+        <span className="text-sm font-semibold text-neutral-900 dark:text-white">{following.length}</span>
+        <span className="text-sm text-neutral-500 dark:text-neutral-400">siguiendo</span>
+      </button>
     </div>
   );
 }

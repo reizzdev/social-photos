@@ -3,15 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
-import {
-  getMe,
-  getUserByUsername,
-  getFollowers,
-  getFollowing,
-  followUser,
-  unfollowUser,
-} from "@/services/useService";
-
+import {getMe, getUserByUsername, getFollowers, getFollowing, followUser, unfollowUser} from "@/services/useService";
 import { getPhotosByUser, toggleLike } from "@/services/photoService";
 
 export function useUserProfile() {
@@ -24,9 +16,8 @@ export function useUserProfile() {
   const [followers, setFollowers] = useState<any[]>([]);
   const [following, setFollowing] = useState<any[]>([]);
 
-  // ✅ NUEVO: IDs que el usuario logueado sigue
+  // NUEVO: IDs que el usuario logueado sigue
   const [myFollowingIds, setMyFollowingIds] = useState<string[]>([]);
-
   const [selectedPhoto, setSelectedPhoto] = useState<any>(null);
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
@@ -41,7 +32,6 @@ export function useUserProfile() {
         meData = await getMe();
         setMe(meData);
 
-        // ✅ Carga los IDs que el usuario logueado sigue
         if (meData?.id) {
           const myFollowing = await getFollowing(meData.id);
           const ids = myFollowing.map((u: any) => u.id);
@@ -63,7 +53,6 @@ export function useUserProfile() {
 
       const followingData = await getFollowing(userData.id);
       setFollowing(followingData);
-
     } catch (err) {
       console.error(err);
       setError("Error cargando perfil");
@@ -87,9 +76,8 @@ export function useUserProfile() {
     const newFollowers = await getFollowers(targetId);
     setFollowers(newFollowers);
 
-    // ✅ Actualiza los IDs del usuario logueado inmediatamente
     setMyFollowingIds((prev) =>
-      prev.includes(targetId) ? prev : [...prev, targetId]
+      prev.includes(targetId) ? prev : [...prev, targetId],
     );
   };
 
@@ -99,7 +87,7 @@ export function useUserProfile() {
     const newFollowers = await getFollowers(targetId);
     setFollowers(newFollowers);
 
-    // ✅ Remueve el ID al dejar de seguir
+    // Remueve el ID al dejar de seguir
     setMyFollowingIds((prev) => prev.filter((id) => id !== targetId));
   };
 
@@ -110,8 +98,8 @@ export function useUserProfile() {
 
       setPhotos((prev) =>
         prev.map((p) =>
-          p.id === photoId ? { ...p, like_count: newLikes } : p
-        )
+          p.id === photoId ? { ...p, like_count: newLikes } : p,
+        ),
       );
 
       if (selectedPhoto && selectedPhoto.id === photoId) {
@@ -128,8 +116,7 @@ export function useUserProfile() {
     photos,
     followers,
     following,
-    myFollowingIds, // ✅ Exportado para usarlo en ProfilePage
-
+    myFollowingIds,
     selectedPhoto,
     setSelectedPhoto,
 

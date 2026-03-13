@@ -15,6 +15,8 @@ export interface Photo {
     id: string;
 
     username: string;
+
+    avatar_url?: string;
   };
 
   photo_tags?: {

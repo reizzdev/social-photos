@@ -1,20 +1,20 @@
 "use client";
 
-// ESTO ES PARA EL PROFILE DONDE SE PUEDE CENSURAR O ELIMINAR FOTOS
-
+import { useState } from "react";
 import { api } from "@/services/api";
-
 import { PhotoCardProps } from "@/types/photo";
 
-export default function PhotoCard({
-  photo,
-  onDelete,
-  onToggle,
-}: PhotoCardProps) {
+export default function PhotoCard({ photo, onDelete, onToggle }: PhotoCardProps) {
+  const [confirming, setConfirming] = useState(false);
+
   const handleDelete = async () => {
+    if (!confirming) {
+      setConfirming(true);
+      setTimeout(() => setConfirming(false), 3000);
+      return;
+    }
     try {
       await api.delete(`/photos/${photo.id}`);
-
       onDelete(photo.id);
     } catch (err) {
       console.error(err);
@@ -24,7 +24,6 @@ export default function PhotoCard({
   const toggleCensor = async () => {
     try {
       await api.patch(`/photos/censor/${photo.id}`);
-
       onToggle(photo.id);
     } catch (err) {
       console.error(err);
@@ -33,29 +32,40 @@ export default function PhotoCard({
 
   return (
     <div className="w-[200px]">
-      <div className="relative">
-        <img src={photo.image_url} alt="" className="w-full rounded-lg" />
-
-        {photo.censored && (
-          <div className="absolute top-1 left-1 bg-red-600 text-white px-2 py-[2px] rounded text-xs font-bold">
-            CENSURADA
-          </div>
-        )}
+      {/* Imagen sin ningún overlay */}
+      <div className="relative overflow-hidden rounded-xl">
+        <img
+          src={photo.image_url}
+          alt=""
+          className="w-full object-cover"
+        />
       </div>
 
-      <div className="flex gap-2 mt-1">
-        <button
-          onClick={handleDelete}
-          className="px-2 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
-        >
-          Eliminar
-        </button>
-
+      {/* Controles debajo de la imagen */}
+      <div className="flex items-center gap-2 mt-2">
+        {/* Botón censurar — ocupa todo el espacio */}
         <button
           onClick={toggleCensor}
-          className="px-2 py-1 text-sm bg-gray-700 text-white rounded hover:bg-gray-800"
+          className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition ${
+            photo.censored
+              ? "bg-red-500/10 text-red-500 border border-red-400/40 hover:bg-red-500/20"
+              : "bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700"
+          }`}
         >
-          {photo.censored ? "Quitar censura" : "Censurar"}
+          {photo.censored ? "Censurada" : "Censurar"}
+        </button>
+
+        {/* Botón eliminar — solo ícono X */}
+        <button
+          onClick={handleDelete}
+          title={confirming ? "¿Confirmar?" : "Eliminar"}
+          className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold transition flex-shrink-0 ${
+            confirming
+              ? "bg-red-500 text-white animate-pulse"
+              : "bg-neutral-100 dark:bg-neutral-800 text-neutral-400 hover:bg-red-500 hover:text-white"
+          }`}
+        >
+          {confirming ? "?" : "✕"}
         </button>
       </div>
     </div>
