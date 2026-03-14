@@ -1,6 +1,7 @@
 export interface User {
   id: string;
   username: string;
+  avatar_url?: string;
 }
 
 export interface ProfileHeaderProps {
@@ -15,4 +16,7 @@ export interface FollowersListProps {
   title: string;
   users: any[];
   onClose: () => void;
+  isOwner?: boolean;
+  onRemoveFollower?: (userId: string) => void;
+  onUnfollow?: (userId: string) => void;
 }

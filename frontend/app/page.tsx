@@ -21,12 +21,12 @@ export default function PhotosPage() {
 
   return (
     <div className="p-10">
-      <h1 className="text-2xl font-bold mb-5">Galería de Fotos</h1>
-
+    
       <PhotoGrid
         photos={photos}
         masonry
         showUsername
+        showTags
         currentUser={currentUser}
         following={following}
         setFollowing={setFollowing}

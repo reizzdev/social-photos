@@ -47,6 +47,8 @@ export interface PhotoGridProps {
 
   showUsername?: boolean;
 
+  showTags?: boolean;
+
   enableCensorship?: boolean;
 
   enableFollowUnlock?: boolean;

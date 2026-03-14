@@ -15,6 +15,7 @@ export default function PhotoGrid({
   setShowAuthModal,
   masonry = false,
   showUsername,
+  showTags,
 }: PhotoGridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
 
@@ -83,7 +84,7 @@ export default function PhotoGrid({
         const isOwner = currentUser?.id === authorId;
         const followsUser = following?.includes(authorId) ?? false;
         const shouldBlur =
-          showUsername && photo.censored && !followsUser && !isOwner;
+  photo.censored && !followsUser && !isOwner;
 
         return (
           <div key={photo.id}>
@@ -136,7 +137,7 @@ export default function PhotoGrid({
               )}
 
               {/* Tags — esquina superior derecha */}
-              {showUsername &&
+              {showTags &&
                 photo.photo_tags &&
                 photo.photo_tags.length > 0 &&
                 !shouldBlur && (
@@ -154,12 +155,23 @@ export default function PhotoGrid({
                   </div>
                 )}
 
-              {/* Censored overlay */}
               {shouldBlur && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10">
-                  <p className="text-white/70 text-xs font-medium tracking-widest uppercase">
+                  {/* Avatar y nombre del dueño */}
+                  <div className="flex flex-col items-center gap-1.5">
+                    <img
+                      src={photo.users?.avatar_url || "/default-avatar.png"}
+                      className="w-10 h-10 rounded-full object-cover border-2 border-white/30"
+                    />
+                    <p className="text-white text-xs font-medium">
+                      @{photo.users?.username}
+                    </p>
+                  </div>
+
+                  <p className="text-white/60 text-[10px] font-medium tracking-widest uppercase">
                     Contenido privado
                   </p>
+
                   {currentUser ? (
                     <button
                       onClick={(e) => {

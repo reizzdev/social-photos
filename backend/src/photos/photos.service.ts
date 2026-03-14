@@ -57,6 +57,7 @@ export class PhotosService {
           select: {
             id: true,
             username: true,
+            avatar_url: true,
           },
         },
 
@@ -88,6 +89,7 @@ export class PhotosService {
         select: {
           id: true,
           username: true,
+          avatar_url: true,
         },
       },
 
@@ -157,6 +159,7 @@ async getByTag(name: string) {
         select: {
           id: true,
           username: true,
+          avatar_url: true,
         },
       },
 

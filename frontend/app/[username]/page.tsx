@@ -13,8 +13,11 @@ export default function ProfilePage() {
   const profile = useUserProfile();
   const [showAuthModal, setShowAuthModal] = useState(false);
 
+  const isOwner = profile.me?.id === profile.user?.id; // ✅
+
   if (profile.loading) return <p className="text-center mt-10">Cargando...</p>;
-  if (profile.error) return <p className="text-center mt-10 text-red-500">{profile.error}</p>;
+  if (profile.error)
+    return <p className="text-center mt-10 text-red-500">{profile.error}</p>;
 
   return (
     <div className="max-w-3xl mx-auto p-4">
@@ -29,7 +32,8 @@ export default function ProfilePage() {
         handleFollow={profile.handleFollow}
         setSelectedPhoto={profile.setSelectedPhoto}
         setShowAuthModal={setShowAuthModal}
-        showUsername
+        //showUsername
+        showTags
       />
 
       {profile.selectedPhoto && (
@@ -45,6 +49,8 @@ export default function ProfilePage() {
           title="Seguidores"
           users={profile.followers}
           onClose={() => profile.setShowFollowers(false)}
+          isOwner={isOwner}
+          onRemoveFollower={profile.removeFollower} // ✅
         />
       )}
 
@@ -53,13 +59,12 @@ export default function ProfilePage() {
           title="Siguiendo"
           users={profile.following}
           onClose={() => profile.setShowFollowing(false)}
+          isOwner={isOwner}
+          onUnfollow={profile.handleUnfollow} // ✅
         />
       )}
 
-      {showAuthModal && 
-      <AuthModal 
-        onClose={() => setShowAuthModal(false)} 
-      />}
+      {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
     </div>
   );
 }
