@@ -1,28 +1,49 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { api } from "@/services/api";
 
 export default function UploadPhoto() {
   const [imageUrl, setImageUrl] = useState("");
   const [tags, setTags] = useState("");
+  const [accessType, setAccessType] = useState<"public" | "follow" | "goal">("public");
+  const [collectionId, setCollectionId] = useState("");
+  const [collections, setCollections] = useState<any[]>([]);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchCollections = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await api.get("/users/me", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const cols = await api.get(`/collections/user/${res.data.id}`);
+        setCollections(cols.data);
+      } catch (err) {}
+    };
+    fetchCollections();
+  }, []);
 
   const handleUpload = async () => {
     if (!imageUrl.trim()) return;
     try {
       setLoading(true);
-      const tagArray = tags
-        .split(",")
-        .map((t) => t.trim())
-        .filter((t) => t !== "");
+      const tagArray = tags.split(",").map((t) => t.trim()).filter((t) => t !== "");
 
-      await api.post("/photos", { image_url: imageUrl, tags: tagArray });
+      await api.post("/photos", {
+        image_url: imageUrl,
+        tags: tagArray,
+        access_type: accessType,
+        collection_id: collectionId || undefined,
+      });
 
       setImageUrl("");
       setTags("");
+      setAccessType("public");
+      setCollectionId("");
       setIsError(false);
       setMessage("Foto subida exitosamente");
     } catch (err) {
@@ -36,8 +57,8 @@ export default function UploadPhoto() {
 
   return (
     <div className="bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-4 mt-6">
-      
-      {/* Preview de imagen */}
+
+      {/* Preview + inputs */}
       <div className="flex gap-3 mb-3">
         <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center">
           {imageUrl.trim() ? (
@@ -78,10 +99,7 @@ export default function UploadPhoto() {
         <div className="flex flex-wrap gap-1.5 mb-3">
           {tags.split(",").map((t, i) =>
             t.trim() ? (
-              <span
-                key={i}
-                className="text-xs bg-violet-500/10 text-violet-500 px-2.5 py-0.5 rounded-full"
-              >
+              <span key={i} className="text-xs bg-violet-500/10 text-violet-500 px-2.5 py-0.5 rounded-full">
                 #{t.trim()}
               </span>
             ) : null
@@ -89,15 +107,42 @@ export default function UploadPhoto() {
         </div>
       )}
 
+      {/* Tipo de acceso */}
+      <div className="flex gap-2 mb-3">
+        {(["public", "follow", "goal"] as const).map((type) => (
+          <button
+            key={type}
+            onClick={() => setAccessType(type)}
+            className={`flex-1 py-1.5 text-xs rounded-lg border transition ${
+              accessType === type
+                ? "border-violet-400 bg-violet-500/10 text-violet-500 font-medium"
+                : "border-neutral-300 dark:border-neutral-700 text-neutral-500 hover:border-neutral-400"
+            }`}
+          >
+            {type === "public" ? "🌐 Público" : type === "follow" ? "👥 Follow" : "🎯 Meta"}
+          </button>
+        ))}
+      </div>
+
+      {/* Colección */}
+      {collections.length > 0 && (
+        <select
+          value={collectionId}
+          onChange={(e) => setCollectionId(e.target.value)}
+          className="w-full px-3 py-2 text-sm rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white focus:outline-none focus:border-violet-400 transition mb-3"
+        >
+          <option value="">Sin colección</option>
+          {collections.map((c) => (
+            <option key={c.id} value={c.id}>{c.title}</option>
+          ))}
+        </select>
+      )}
+
       {/* Footer */}
       <div className="flex items-center justify-between gap-3">
         {message ? (
-          <p className={`text-xs ${isError ? "text-red-500" : "text-green-500"}`}>
-            {message}
-          </p>
-        ) : (
-          <span />
-        )}
+          <p className={`text-xs ${isError ? "text-red-500" : "text-green-500"}`}>{message}</p>
+        ) : <span />}
 
         <button
           onClick={handleUpload}

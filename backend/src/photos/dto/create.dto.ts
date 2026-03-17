@@ -7,4 +7,12 @@ export class CreateDto {
   @IsArray()
   @IsOptional()
   tags?: string[];
+
+  @IsString()
+  @IsOptional()
+  collection_id?: string;
+
+  @IsString()
+  @IsOptional()
+  access_type?: string; // 'public' | 'follow' | 'goal'
 }

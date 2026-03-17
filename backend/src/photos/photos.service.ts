@@ -17,11 +17,13 @@ export class PhotosService {
 
   async createPhoto(userId: string, dto: CreateDto) {
     const photo = await this.prisma.photos.create({
-      data: {
-        user_id: userId,
-        image_url: dto.image_url,
-      },
-    });
+  data: {
+    user_id: userId,
+    image_url: dto.image_url,
+    collection_id: dto.collection_id || null,
+    access_type: dto.access_type || 'public',
+  },
+});
 
     if (dto.tags && dto.tags.length > 0) {
       for (const tagName of dto.tags) {
