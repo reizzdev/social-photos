@@ -57,12 +57,13 @@ export default function ProfilePage() {
         <div className="flex flex-col gap-4">
           {isOwner && <CreateCollection onCreate={profile.createCollection} />}
           <CollectionFeed
-            collections={profile.collections}
-            currentUser={profile.me}
-            following={profile.myFollowingIds}
-            onDelete={isOwner ? profile.deleteCollection : undefined}
-            onTogglePrivacy={isOwner ? profile.toggleCollectionPrivacy : undefined}
-          />
+  collections={profile.collections}
+  currentUser={profile.me}
+  following={profile.myFollowingIds}
+  onDelete={isOwner ? profile.deleteCollection : undefined}
+  onTogglePrivacy={isOwner ? profile.toggleCollectionPrivacy : undefined}
+  onFollow={profile.handleFollow}
+/>
         </div>
       )}
 

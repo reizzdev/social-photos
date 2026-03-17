@@ -33,16 +33,27 @@ export class UsersService {
     });
   }
 
-  async follow(userId: string, targetId: string) {
-    if (userId === targetId) throw new Error('No puedes seguirte a ti mismo');
+async follow(userId: string, targetId: string) {
+  if (userId === targetId) throw new Error('No puedes seguirte a ti mismo');
 
-    return this.prisma.followers.create({
-      data: {
+  const existing = await this.prisma.followers.findUnique({
+    where: {
+      follower_id_following_id: {
         follower_id: userId,
         following_id: targetId,
       },
-    });
-  }
+    },
+  });
+
+  if (existing) return existing;
+
+  return this.prisma.followers.create({
+    data: {
+      follower_id: userId,
+      following_id: targetId,
+    },
+  });
+}
 
   async unfollow(userId: string, targetId: string) {
     return this.prisma.followers.delete({

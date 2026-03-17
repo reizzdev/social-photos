@@ -41,11 +41,12 @@ export default function PhotosPage() {
       </div>
 
       {tab === "colecciones" && (
-        <CollectionFeed
-          collections={collections}
-          currentUser={currentUser}
-          following={following}
-        />
+       <CollectionFeed
+  collections={collections}
+  currentUser={currentUser}
+  following={following}
+  onFollow={handleFollow}
+/>
       )}
 
       {tab === "fotos" && (

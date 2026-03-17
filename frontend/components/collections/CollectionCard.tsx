@@ -1,17 +1,20 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { Collection } from "@/types/collection";
+import { api } from "@/services/api";
+import PhotoModal from "@/components/profile/PhotoModal";
 
 interface Props {
   collection: Collection;
   currentUser?: any;
   following?: string[];
+  onFollow?: (userId: string) => void;
   onDelete?: (id: string) => void;
   onTogglePrivacy?: (id: string) => void;
 }
-
-export default function CollectionCard({ collection, currentUser, following, onDelete, onTogglePrivacy }: Props) {
+export default function CollectionCard({ collection, currentUser, following, onFollow, onDelete, onTogglePrivacy }: Props) {
   const isOwner = currentUser?.id === collection.user_id;
   const hasGoal = collection.goal_amount > 0;
   const progress = hasGoal
@@ -19,6 +22,34 @@ export default function CollectionCard({ collection, currentUser, following, onD
     : 0;
 
   const photos = collection.photos ?? [];
+  const [selectedPhoto, setSelectedPhoto] = useState<any>(null);
+
+ const handleFollow = async (userId: string) => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    await api.post(`/users/follow/${userId}`, {}, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    onFollow?.(userId);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+  const handleLike = async (photoId: string) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await api.post(`/photos/like/${photoId}`, {}, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (selectedPhoto?.id === photoId) {
+        setSelectedPhoto((prev: any) => ({ ...prev, like_count: res.data.likes }));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <div className="border border-neutral-200 dark:border-neutral-800 rounded-2xl overflow-hidden">
@@ -35,25 +66,25 @@ export default function CollectionCard({ collection, currentUser, following, onD
           </span>
         </Link>
         {isOwner && (
-  <div className="flex items-center gap-2">
-    {onTogglePrivacy && (
-      <button
-        onClick={() => onTogglePrivacy(collection.id)}
-        className="text-xs text-neutral-400 hover:text-violet-400 transition"
-      >
-        {collection.is_private ? "🔒 Privada" : "🌐 Pública"}
-      </button>
-    )}
-    {onDelete && (
-      <button
-        onClick={() => onDelete(collection.id)}
-        className="text-xs text-neutral-400 hover:text-red-400 transition"
-      >
-        Eliminar
-      </button>
-    )}
-  </div>
-)}
+          <div className="flex items-center gap-2">
+            {onTogglePrivacy && (
+              <button
+                onClick={() => onTogglePrivacy(collection.id)}
+                className="text-xs text-neutral-400 hover:text-violet-400 transition"
+              >
+                {collection.is_private ? "🔒 Privada" : "🌐 Pública"}
+              </button>
+            )}
+            {onDelete && (
+              <button
+                onClick={() => onDelete(collection.id)}
+                className="text-xs text-neutral-400 hover:text-red-400 transition"
+              >
+                Eliminar
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Descripción */}
@@ -74,32 +105,68 @@ export default function CollectionCard({ collection, currentUser, following, onD
           }}
         >
           {photos.map((photo) => {
-            const followsOwner = following?.includes(photo.user_id) ?? false;
-            const isPhotoOwner = currentUser?.id === photo.user_id;
-            const isFollowGated = photo.access_type === "follow" && !followsOwner && !isPhotoOwner;
-            const isGoalGated = photo.access_type === "goal" && !collection.completed && !isPhotoOwner;
-
+  const followsOwner = (following ?? []).includes(photo.user_id);
+  const isPhotoOwner = currentUser?.id === photo.user_id;
+  const isFollowGated = photo.access_type === "follow" && !followsOwner && !isPhotoOwner;
+  const isGoalGated = photo.access_type === "goal" && !collection.completed && !isPhotoOwner;
+  const isBlurred = isFollowGated || isGoalGated;
             return (
-              <div key={photo.id} className="relative overflow-hidden rounded-lg aspect-square">
+              <div
+                key={photo.id}
+                className="relative overflow-hidden rounded-lg aspect-square cursor-pointer group"
+                onClick={() => { if (!isBlurred) setSelectedPhoto(photo); }}
+              >
                 <img
                   src={photo.image_url}
-                  className={`w-full h-full object-cover ${
-                    isFollowGated || isGoalGated ? "blur-xl brightness-50 scale-110" : ""
+                  className={`w-full h-full object-cover transition ${
+                    isBlurred ? "blur-xl brightness-50 scale-110" : "group-hover:scale-105"
                   }`}
                 />
-                {isFollowGated && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-white text-xs font-medium">🔒 Seguir</span>
+
+                {/* Hover like — solo si no está bloqueada */}
+                {!isBlurred && (
+                  <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-1 text-white text-sm font-semibold">
+                    ❤️ <span>{photo.like_count ?? 0}</span>
                   </div>
                 )}
+
+                {/* Overlay follow */}
+                {isFollowGated && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-2">
+                    <span className="text-white text-[10px] font-medium tracking-widest uppercase">
+                      Contenido privado
+                    </span>
+                    {currentUser ? (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleFollow(photo.user_id);
+                        }}
+                        className="bg-white text-neutral-900 text-[10px] font-medium px-3 py-1.5 rounded-full hover:bg-neutral-100 transition"
+                      >
+                        Seguir para ver
+                      </button>
+                    ) : (
+                      <Link
+                        href="/login"
+                        onClick={(e) => e.stopPropagation()}
+                        className="bg-white text-neutral-900 text-[10px] font-medium px-3 py-1.5 rounded-full hover:bg-neutral-100 transition"
+                      >
+                        Regístrate para ver
+                      </Link>
+                    )}
+                  </div>
+                )}
+
+                {/* Overlay meta */}
                 {isGoalGated && (
-  <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
-    <span className="text-white text-xs font-medium">🎯 Meta pendiente</span>
-    <span className="text-white/60 text-[10px]">
-      {Math.round((collection.current_amount / collection.goal_amount) * 100)}% completado
-    </span>
-  </div>
-)}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-2">
+                    <span className="text-white text-xs font-medium">🎯 Meta pendiente</span>
+                    <span className="text-white/60 text-[10px]">
+                      {Math.round((collection.current_amount / collection.goal_amount) * 100)}% completado
+                    </span>
+                  </div>
+                )}
               </div>
             );
           })}
@@ -125,6 +192,15 @@ export default function CollectionCard({ collection, currentUser, following, onD
             </p>
           )}
         </div>
+      )}
+
+      {/* Modal */}
+      {selectedPhoto && (
+        <PhotoModal
+          photo={selectedPhoto}
+          onClose={() => setSelectedPhoto(null)}
+          handleLike={handleLike}
+        />
       )}
     </div>
   );

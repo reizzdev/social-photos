@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Collection } from "@/types/collection";
 import CollectionCard from "./CollectionCard";
 
@@ -9,9 +10,20 @@ interface Props {
   following?: string[];
   onDelete?: (id: string) => void;
   onTogglePrivacy?: (id: string) => void;
+  onFollow?: (userId: string) => void;
 }
 
-export default function CollectionFeed({ collections, currentUser, following, onDelete, onTogglePrivacy }: Props) {
+export default function CollectionFeed({ collections, currentUser, following: initialFollowing, onDelete, onTogglePrivacy, onFollow: externalOnFollow }: Props) {
+  const [following, setFollowing] = useState<string[]>(initialFollowing ?? []);
+
+useEffect(() => {
+  setFollowing(initialFollowing ?? []);
+}, [initialFollowing]);
+
+  const handleFollow = (userId: string) => {
+    setFollowing((prev) => prev.includes(userId) ? prev : [...prev, userId]);
+    externalOnFollow?.(userId);
+  };
   if (collections.length === 0) {
     return (
       <p className="text-center text-neutral-400 text-sm mt-16">
@@ -28,6 +40,7 @@ export default function CollectionFeed({ collections, currentUser, following, on
           collection={collection}
           currentUser={currentUser}
           following={following}
+          onFollow={handleFollow}
           onDelete={onDelete}
           onTogglePrivacy={onTogglePrivacy}
         />
