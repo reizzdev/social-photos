@@ -6,16 +6,7 @@ import AuthModal from "@/components/shared/AuthModal";
 import { usePhotosPage } from "@/hooks/usePhotosPage";
 
 export default function PhotosPage() {
-  const {
-    photos,
-    following,
-    setFollowing,
-    currentUser,
-    selectedPhoto,
-    setSelectedPhoto,
-    showAuthModal,
-    setShowAuthModal,
-    handleFollow,
+  const {photos,following,setFollowing,currentUser,selectedPhoto,setSelectedPhoto,showAuthModal,setShowAuthModal,handleFollow,
     handleLike,
   } = usePhotosPage();
 

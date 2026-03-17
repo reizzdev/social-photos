@@ -111,8 +111,26 @@ ADD COLUMN censored BOOLEAN DEFAULT FALSE;
 
 ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT;
 
+-- /////////////////// 16/03/2026
+
+CREATE TABLE comments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  photo_id UUID NOT NULL REFERENCES photos(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  content TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT now()
+);
+
+
+
+
+
+
+
 SELECT * FROM users;
 SELECT * FROM photos;
 SELECT * FROM followers;
 SELECT * FROM tags;
 SELECT * FROM photo_tags;
+SELECT * FROM comments;
+
