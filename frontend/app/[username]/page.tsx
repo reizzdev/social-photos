@@ -7,31 +7,18 @@ import FollowersList from "@/components/profile/FollowersList";
 import PhotoGrid from "@/components/profile/PhotoGrid";
 import PhotoModal from "@/components/profile/PhotoModal";
 import AuthModal from "@/components/shared/AuthModal";
+import PhotoCard from "@/components/profile/PhotoCard";
+import UploadPhoto from "@/components/profile/UploadPhoto";
 import CollectionFeed from "@/components/collections/CollectionFeed";
-import { useState, useEffect } from "react";
-import { api } from "@/services/api";
-import { Collection } from "@/types/collection";
+import CreateCollection from "@/components/collections/CreateCollection";
+import { useState } from "react";
 
 export default function ProfilePage() {
   const profile = useUserProfile();
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [collections, setCollections] = useState<Collection[]>([]);
   const [tab, setTab] = useState<"colecciones" | "fotos">("colecciones");
 
   const isOwner = profile.me?.id === profile.user?.id;
-
-  useEffect(() => {
-    if (!profile.user?.id) return;
-    const fetchCollections = async () => {
-      try {
-        const res = await api.get(`/collections/user/${profile.user.id}`);
-        setCollections(res.data);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchCollections();
-  }, [profile.user?.id]);
 
   if (profile.loading) return <p className="text-center mt-10">Cargando...</p>;
   if (profile.error) return <p className="text-center mt-10 text-red-500">{profile.error}</p>;
@@ -61,31 +48,56 @@ export default function ProfilePage() {
               : "text-neutral-500 hover:text-neutral-700"
           }`}
         >
-          Fotos
+          {isOwner ? "Mis fotos" : "Fotos"}
         </button>
       </div>
 
+      {/* Tab colecciones */}
       {tab === "colecciones" && (
-        <CollectionFeed
-          collections={collections}
-          currentUser={profile.me}
-          following={profile.myFollowingIds}
-        />
+        <div className="flex flex-col gap-4">
+          {isOwner && <CreateCollection onCreate={profile.createCollection} />}
+          <CollectionFeed
+            collections={profile.collections}
+            currentUser={profile.me}
+            following={profile.myFollowingIds}
+            onDelete={isOwner ? profile.deleteCollection : undefined}
+            onTogglePrivacy={isOwner ? profile.toggleCollectionPrivacy : undefined}
+          />
+        </div>
       )}
 
-      {tab === "fotos" && (
-        <PhotoGrid
-          photos={profile.photos}
-          currentUser={profile.me}
-          following={profile.myFollowingIds}
-          handleLike={profile.handleLike}
-          handleFollow={profile.handleFollow}
-          setSelectedPhoto={profile.setSelectedPhoto}
-          setShowAuthModal={setShowAuthModal}
-          showTags
-        />
-      )}
+      {/* Tab fotos */}
+     {tab === "fotos" && (
+  <div className="flex flex-col gap-6">
+    {isOwner && <UploadPhoto />}
+    {isOwner ? (
+      <div className="flex flex-wrap gap-4">
+       {profile.photos.map((photo) => (
+  <PhotoCard
+    key={photo.id}
+    photo={photo}
+    onDelete={profile.deletePhoto}
+    onToggle={profile.toggleCensorPhoto}
+    onSelect={profile.setSelectedPhoto}
+  />
+))}
+      </div>
+    ) : (
+      <PhotoGrid
+        photos={profile.photos}
+        currentUser={profile.me}
+        following={profile.myFollowingIds}
+        handleLike={profile.handleLike}
+        handleFollow={profile.handleFollow}
+        setSelectedPhoto={profile.setSelectedPhoto}
+        setShowAuthModal={setShowAuthModal}
+        showTags
+      />
+    )}
+  </div>
+)}
 
+      {/* Modales */}
       {profile.selectedPhoto && (
         <PhotoModal
           photo={profile.selectedPhoto}

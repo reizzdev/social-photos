@@ -53,6 +53,8 @@ export class PhotosService {
         image_url: true,
         like_count: true,
         censored: true,
+              access_type: true,      // 👈 ¿está esto?
+      collection_id: true,    // 👈 ¿y esto?
         created_at: true,
 
         users: {
@@ -85,6 +87,8 @@ export class PhotosService {
       image_url: true,
       like_count: true,
       censored: true,
+      access_type: true,      // 👈
+      collection_id: true,
       created_at: true,
 
       users: {       // 👈 NECESARIO
@@ -234,4 +238,41 @@ async getByTag(name: string) {
       };
     }
   }
+
+  async updateAccess(photoId: string, userId: string, accessType: string) {
+  const photo = await this.prisma.photos.findUnique({
+    where: { id: photoId },
+  });
+
+  if (!photo) throw new Error('Foto no encontrada');
+  if (photo.user_id !== userId) throw new Error('No autorizado');
+
+  return this.prisma.photos.update({
+    where: { id: photoId },
+    data: { access_type: accessType },
+  });
+}
+
+async updateCollection(photoId: string, userId: string, collectionId: string | null) {
+  const photo = await this.prisma.photos.findUnique({
+    where: { id: photoId },
+  });
+
+  if (!photo) throw new Error('Foto no encontrada');
+  if (photo.user_id !== userId) throw new Error('No autorizado');
+
+  if (collectionId) {
+    const collection = await this.prisma.collections.findUnique({
+      where: { id: collectionId },
+    });
+    if (collection && (collection.current_amount ?? 0) > 0) {
+      throw new Error('No se puede mover, hay aportantes');
+    }
+  }
+
+  return this.prisma.photos.update({
+    where: { id: photoId },
+    data: { collection_id: collectionId },
+  });
+}
 }

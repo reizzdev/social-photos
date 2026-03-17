@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Post, Delete, Param, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Delete, Param, Req, UseGuards, Patch } from '@nestjs/common';
 import { CollectionsService } from './collections.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from '../auth/optional-jwt.guard';
 
 @Controller('collections')
 export class CollectionsController {
@@ -11,10 +12,12 @@ export class CollectionsController {
     return this.collectionsService.findAll();
   }
 
-  @Get('user/:userId')
-  findByUser(@Param('userId') userId: string) {
-    return this.collectionsService.findByUser(userId);
-  }
+@UseGuards(OptionalJwtAuthGuard)
+@Get('user/:userId')
+findByUser(@Param('userId') userId: string, @Req() req: any) {
+  const requesterId = req.user?.userId;
+  return this.collectionsService.findByUser(userId, requesterId);
+}
 
   @Get(':id')
   findOne(@Param('id') id: string) {
@@ -32,4 +35,10 @@ export class CollectionsController {
   delete(@Param('id') id: string, @Req() req: any) {
     return this.collectionsService.delete(req.user.userId, id);
   }
+
+  @UseGuards(JwtAuthGuard)
+@Patch(':id/privacy')
+togglePrivacy(@Param('id') id: string, @Req() req: any) {
+  return this.collectionsService.togglePrivacy(req.user.userId, id);
+}
 }

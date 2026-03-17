@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import Link from "next/link";
 import { PhotoGridProps } from "@/types/photo";
+import { api } from "@/services/api";
 
 export default function PhotoGrid({
   photos,
@@ -16,8 +17,14 @@ export default function PhotoGrid({
   masonry = false,
   showUsername,
   showTags,
-}: PhotoGridProps) {
+  onDelete,
+  onToggleCensor,
+}: PhotoGridProps & {
+  onDelete?: (id: string) => void;
+  onToggleCensor?: (id: string) => void;
+}) {
   const gridRef = useRef<HTMLDivElement>(null);
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
 
   const setMasonry = () => {
     const grid = gridRef.current;
@@ -53,6 +60,30 @@ export default function PhotoGrid({
     );
   };
 
+  const handleDelete = async (photoId: string) => {
+    if (confirmingId !== photoId) {
+      setConfirmingId(photoId);
+      setTimeout(() => setConfirmingId(null), 3000);
+      return;
+    }
+    try {
+      await api.delete(`/photos/${photoId}`);
+      onDelete?.(photoId);
+      setConfirmingId(null);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleToggleCensor = async (photoId: string) => {
+    try {
+      await api.patch(`/photos/censor/${photoId}`);
+      onToggleCensor?.(photoId);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   if (photos.length === 0) {
     return (
       <p className="text-center text-neutral-400 text-sm mt-16">
@@ -83,8 +114,9 @@ export default function PhotoGrid({
         const authorId = photo.user_id ?? photo.users?.id;
         const isOwner = currentUser?.id === authorId;
         const followsUser = following?.includes(authorId) ?? false;
-        const shouldBlur =
-  photo.censored && !followsUser && !isOwner;
+        const isGoalGated = photo.access_type === "goal" && !isOwner;
+        const isFollowGated = (photo.censored || photo.access_type === "follow") && !followsUser && !isOwner && !isGoalGated;
+        const shouldBlur = isGoalGated || isFollowGated;
 
         return (
           <div key={photo.id}>
@@ -136,7 +168,7 @@ export default function PhotoGrid({
                 </Link>
               )}
 
-              {/* Tags — esquina superior derecha */}
+              {/* Tags */}
               {showTags &&
                 photo.photo_tags &&
                 photo.photo_tags.length > 0 &&
@@ -155,9 +187,9 @@ export default function PhotoGrid({
                   </div>
                 )}
 
-              {shouldBlur && (
+              {/* Blur overlay — follow */}
+              {isFollowGated && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10">
-                  {/* Avatar y nombre del dueño */}
                   <div className="flex flex-col items-center gap-1.5">
                     <img
                       src={photo.users?.avatar_url || "/default-avatar.png"}
@@ -167,11 +199,9 @@ export default function PhotoGrid({
                       @{photo.users?.username}
                     </p>
                   </div>
-
                   <p className="text-white/60 text-[10px] font-medium tracking-widest uppercase">
                     Contenido privado
                   </p>
-
                   {currentUser ? (
                     <button
                       onClick={(e) => {
@@ -195,7 +225,65 @@ export default function PhotoGrid({
                   )}
                 </div>
               )}
+
+              {/* Blur overlay — meta */}
+              {isGoalGated && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10">
+                  <div className="flex flex-col items-center gap-1.5">
+                    <img
+                      src={photo.users?.avatar_url || "/default-avatar.png"}
+                      className="w-10 h-10 rounded-full object-cover border-2 border-white/30"
+                    />
+                    <p className="text-white text-xs font-medium">
+                      @{photo.users?.username}
+                    </p>
+                  </div>
+                  <p className="text-white/60 text-[10px] font-medium tracking-widest uppercase">
+                    Contenido de meta
+                  </p>
+                  {photo.collection_id && (
+                    <Link
+                      href={`/${photo.users?.username}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="bg-violet-500 hover:bg-violet-600 text-white text-xs font-medium px-4 py-2 rounded-full transition"
+                    >
+                      🎯 Ver colección
+                    </Link>
+                  )}
+                </div>
+              )}
             </div>
+
+            {/* Controles de owner debajo de la foto */}
+            {isOwner && (onDelete || onToggleCensor) && (
+              <div className="flex items-center gap-2 mt-2">
+                {onToggleCensor && (
+                  <button
+                    onClick={() => handleToggleCensor(photo.id)}
+                    className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition ${
+                      photo.censored
+                        ? "bg-red-500/10 text-red-500 border border-red-400/40 hover:bg-red-500/20"
+                        : "bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                    }`}
+                  >
+                    {photo.censored ? "Censurada" : "Censurar"}
+                  </button>
+                )}
+                {onDelete && (
+                  <button
+                    onClick={() => handleDelete(photo.id)}
+                    title={confirmingId === photo.id ? "¿Confirmar?" : "Eliminar"}
+                    className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold transition flex-shrink-0 ${
+                      confirmingId === photo.id
+                        ? "bg-red-500 text-white animate-pulse"
+                        : "bg-neutral-100 dark:bg-neutral-800 text-neutral-400 hover:bg-red-500 hover:text-white"
+                    }`}
+                  >
+                    {confirmingId === photo.id ? "?" : "✕"}
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         );
       })}

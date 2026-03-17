@@ -8,9 +8,10 @@ interface Props {
   currentUser?: any;
   following?: string[];
   onDelete?: (id: string) => void;
+  onTogglePrivacy?: (id: string) => void;
 }
 
-export default function CollectionCard({ collection, currentUser, following, onDelete }: Props) {
+export default function CollectionCard({ collection, currentUser, following, onDelete, onTogglePrivacy }: Props) {
   const isOwner = currentUser?.id === collection.user_id;
   const hasGoal = collection.goal_amount > 0;
   const progress = hasGoal
@@ -33,14 +34,26 @@ export default function CollectionCard({ collection, currentUser, following, onD
             @{collection.users?.username}
           </span>
         </Link>
-        {isOwner && onDelete && (
-          <button
-            onClick={() => onDelete(collection.id)}
-            className="text-xs text-neutral-400 hover:text-red-400 transition"
-          >
-            Eliminar
-          </button>
-        )}
+        {isOwner && (
+  <div className="flex items-center gap-2">
+    {onTogglePrivacy && (
+      <button
+        onClick={() => onTogglePrivacy(collection.id)}
+        className="text-xs text-neutral-400 hover:text-violet-400 transition"
+      >
+        {collection.is_private ? "🔒 Privada" : "🌐 Pública"}
+      </button>
+    )}
+    {onDelete && (
+      <button
+        onClick={() => onDelete(collection.id)}
+        className="text-xs text-neutral-400 hover:text-red-400 transition"
+      >
+        Eliminar
+      </button>
+    )}
+  </div>
+)}
       </div>
 
       {/* Descripción */}
@@ -64,7 +77,7 @@ export default function CollectionCard({ collection, currentUser, following, onD
             const followsOwner = following?.includes(photo.user_id) ?? false;
             const isPhotoOwner = currentUser?.id === photo.user_id;
             const isFollowGated = photo.access_type === "follow" && !followsOwner && !isPhotoOwner;
-            const isGoalGated = photo.access_type === "goal" && !collection.completed;
+            const isGoalGated = photo.access_type === "goal" && !collection.completed && !isPhotoOwner;
 
             return (
               <div key={photo.id} className="relative overflow-hidden rounded-lg aspect-square">
@@ -80,10 +93,13 @@ export default function CollectionCard({ collection, currentUser, following, onD
                   </div>
                 )}
                 {isGoalGated && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-white text-xs font-medium">🎯 Meta</span>
-                  </div>
-                )}
+  <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+    <span className="text-white text-xs font-medium">🎯 Meta pendiente</span>
+    <span className="text-white/60 text-[10px]">
+      {Math.round((collection.current_amount / collection.goal_amount) * 100)}% completado
+    </span>
+  </div>
+)}
               </div>
             );
           })}

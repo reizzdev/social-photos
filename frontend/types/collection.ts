@@ -9,7 +9,7 @@ export interface Collection {
   deadline_at?: string;
   completed: boolean;
   created_at: string;
-
+is_private: boolean;
   users?: {
     id: string;
     username: string;

@@ -55,4 +55,24 @@ export class PhotosController {
 
     return this.photosService.toggleLike(photoId, userId);
   }
+
+  @UseGuards(JwtAuthGuard)
+@Patch(':id/access')
+updateAccess(
+  @Param('id') id: string,
+  @Body() body: { access_type: string },
+  @Req() req: any,
+) {
+  return this.photosService.updateAccess(id, req.user.userId, body.access_type);
+}
+
+@UseGuards(JwtAuthGuard)
+@Patch(':id/collection')
+updateCollection(
+  @Param('id') id: string,
+  @Body() body: { collection_id: string | null },
+  @Req() req: any,
+) {
+  return this.photosService.updateCollection(id, req.user.userId, body.collection_id);
+}
 }

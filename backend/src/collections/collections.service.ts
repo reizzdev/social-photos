@@ -29,6 +29,7 @@ export class CollectionsService {
 
   async findAll() {
     return this.prisma.collections.findMany({
+      where: { is_private: false },
       include: {
         users: {
           select: { id: true, username: true, avatar_url: true },
@@ -49,9 +50,12 @@ export class CollectionsService {
     });
   }
 
-  async findByUser(userId: string) {
+  async findByUser(userId: string, requesterId?: string) {
     return this.prisma.collections.findMany({
-      where: { user_id: userId },
+      where: {
+      user_id: userId,
+      ...(requesterId !== userId && { is_private: false }),
+    },
       include: {
         photos: {
           select: {
@@ -101,4 +105,15 @@ export class CollectionsService {
 
     return this.prisma.collections.delete({ where: { id: collectionId } });
   }
+
+  async togglePrivacy(userId: string, id: string) {
+  const collection = await this.prisma.collections.findUnique({ where: { id } });
+  if (!collection) throw new NotFoundException('Colección no encontrada');
+  if (collection.user_id !== userId) throw new ForbiddenException('No autorizado');
+
+  return this.prisma.collections.update({
+    where: { id },
+    data: { is_private: !collection.is_private },
+  });
+}
 }

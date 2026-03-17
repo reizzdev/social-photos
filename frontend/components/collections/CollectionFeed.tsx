@@ -8,9 +8,10 @@ interface Props {
   currentUser?: any;
   following?: string[];
   onDelete?: (id: string) => void;
+  onTogglePrivacy?: (id: string) => void;
 }
 
-export default function CollectionFeed({ collections, currentUser, following, onDelete }: Props) {
+export default function CollectionFeed({ collections, currentUser, following, onDelete, onTogglePrivacy }: Props) {
   if (collections.length === 0) {
     return (
       <p className="text-center text-neutral-400 text-sm mt-16">
@@ -28,6 +29,7 @@ export default function CollectionFeed({ collections, currentUser, following, on
           currentUser={currentUser}
           following={following}
           onDelete={onDelete}
+          onTogglePrivacy={onTogglePrivacy}
         />
       ))}
     </div>
