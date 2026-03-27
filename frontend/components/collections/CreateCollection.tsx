@@ -26,10 +26,10 @@ export default function CreateCollection({ onCreate }: Props) {
       goal_amount: goalAmount ? parseInt(goalAmount) : undefined,
       deadline_hours: deadlineHours ? parseInt(deadlineHours) : 24,
     });
-    setTitle("");
-    setDescription("");
-    setGoalAmount("");
-    setDeadlineHours("24");
+    setTitle("Es un titulo");
+    setDescription("Hola! mi primera colección");
+    setGoalAmount("2 Fanblys");
+    setDeadlineHours("24h");
     setOpen(false);
   };
 
