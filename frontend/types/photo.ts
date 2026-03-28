@@ -8,7 +8,8 @@ export interface Photo {
   user_id: string;
   access_type?: string;
   collection_id?: string;
-
+  has_contributed?: boolean;
+  collection_completed?: boolean
   users?: {
     id: string;
     username: string;

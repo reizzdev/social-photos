@@ -28,7 +28,6 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-2xl p-8 w-full max-w-sm">
-
         <h1 className="text-xl font-medium text-neutral-900 dark:text-white mb-1">
           Crear cuenta
         </h1>
@@ -60,7 +59,9 @@ export default function RegisterPage() {
           />
 
           {message && (
-            <p className={`text-xs ${isError ? "text-red-500" : "text-green-500"}`}>
+            <p
+              className={`text-xs ${isError ? "text-red-500" : "text-green-500"}`}
+            >
               {message}
             </p>
           )}
@@ -75,7 +76,10 @@ export default function RegisterPage() {
 
         <p className="text-xs text-neutral-400 text-center mt-5">
           ¿Ya tienes cuenta?{" "}
-          <a href="/login" className="text-neutral-600 dark:text-neutral-300 hover:underline">
+          <a
+            href="/login"
+            className="text-neutral-600 dark:text-neutral-300 hover:underline"
+          >
             Inicia sesión
           </a>
         </p>

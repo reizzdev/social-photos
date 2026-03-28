@@ -5,7 +5,11 @@ import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
 import { api } from "@/services/api";
 
-export default function PhotoModal({ photo, onClose, handleLike }: PhotoModalProps) {
+export default function PhotoModal({
+  photo,
+  onClose,
+  handleLike,
+}: PhotoModalProps) {
   const [comments, setComments] = useState<any[]>([]);
   const [content, setContent] = useState("");
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -51,7 +55,7 @@ export default function PhotoModal({ photo, onClose, handleLike }: PhotoModalPro
       const res = await api.post(
         `/comments/photo/${photo.id}`,
         { content },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       setComments((prev) => [...prev, res.data]);
       setContent("");
@@ -83,15 +87,21 @@ export default function PhotoModal({ photo, onClose, handleLike }: PhotoModalPro
       >
         {/* Imagen */}
         <div className="flex-1 bg-black flex items-center justify-center min-h-[300px]">
-          <img src={photo.image_url} className="w-full h-full object-contain max-h-[90vh]" />
+          <img
+            src={photo.image_url}
+            className="w-full h-full object-contain max-h-[90vh]"
+          />
         </div>
 
         {/* Panel derecho */}
         <div className="md:w-72 flex flex-col border-t md:border-t-0 md:border-l border-neutral-800 flex-shrink-0">
-
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-800">
-            <Link href={`/${photo.users?.username}`} onClick={onClose} className="flex items-center gap-2 group">
+            <Link
+              href={`/${photo.users?.username}`}
+              onClick={onClose}
+              className="flex items-center gap-2 group"
+            >
               <img
                 src={photo.users?.avatar_url || "/default-avatar.png"}
                 className="w-8 h-8 rounded-full object-cover border border-neutral-700"
@@ -110,11 +120,15 @@ export default function PhotoModal({ photo, onClose, handleLike }: PhotoModalPro
 
           {/* Likes */}
           <div className="flex items-center gap-2 px-4 py-3 border-b border-neutral-800">
-            <button onClick={() => handleLike(photo.id)} className="text-xl hover:scale-110 transition-transform">
+            <button
+              onClick={() => handleLike(photo.id)}
+              className="text-xl hover:scale-110 transition-transform"
+            >
               ❤️
             </button>
             <span className="text-sm text-neutral-300">
-              {photo.like_count ?? 0} {photo.like_count === 1 ? "like" : "likes"}
+              {photo.like_count ?? 0}{" "}
+              {photo.like_count === 1 ? "like" : "likes"}
             </span>
           </div>
 
@@ -151,7 +165,9 @@ export default function PhotoModal({ photo, onClose, handleLike }: PhotoModalPro
                     <span className="text-xs font-medium text-neutral-300">
                       @{c.users?.username}
                     </span>
-                    <p className="text-xs text-neutral-400 break-words">{c.content}</p>
+                    <p className="text-xs text-neutral-400 break-words">
+                      {c.content}
+                    </p>
                   </div>
                   {currentUser?.id === c.users?.id && (
                     <button
@@ -196,7 +212,6 @@ export default function PhotoModal({ photo, onClose, handleLike }: PhotoModalPro
               </p>
             )}
           </div>
-
         </div>
       </div>
     </div>

@@ -8,6 +8,7 @@ interface Props {
     description?: string;
     goal_amount?: number;
     deadline_hours?: number;
+    min_contribution?: number;
   }) => void;
 }
 
@@ -16,6 +17,7 @@ export default function CreateCollection({ onCreate }: Props) {
   const [description, setDescription] = useState("");
   const [goalAmount, setGoalAmount] = useState("");
   const [deadlineHours, setDeadlineHours] = useState("24");
+  const [minContribution, setMinContribution] = useState("2");
   const [open, setOpen] = useState(false);
 
   const handleCreate = () => {
@@ -25,11 +27,13 @@ export default function CreateCollection({ onCreate }: Props) {
       description: description || undefined,
       goal_amount: goalAmount ? parseInt(goalAmount) : undefined,
       deadline_hours: deadlineHours ? parseInt(deadlineHours) : 24,
+      min_contribution: minContribution ? parseInt(minContribution) : 2,
     });
-    setTitle("Es un titulo");
-    setDescription("Hola! mi primera colección");
-    setGoalAmount("2 Fanblys");
-    setDeadlineHours("24h");
+    setTitle("");
+    setDescription("");
+    setGoalAmount("");
+    setDeadlineHours("24");
+    setMinContribution("2");
     setOpen(false);
   };
 
@@ -68,7 +72,7 @@ export default function CreateCollection({ onCreate }: Props) {
         <div className="flex gap-3">
           <input
             type="number"
-            placeholder="Meta en monedapp (opcional)"
+            placeholder="Meta en fanblys"
             value={goalAmount}
             onChange={(e) => setGoalAmount(e.target.value)}
             className="flex-1 px-3 py-2 text-sm rounded-lg border border-neutral-300 dark:border-neutral-700 bg-transparent focus:outline-none focus:border-violet-400 transition"
@@ -81,6 +85,13 @@ export default function CreateCollection({ onCreate }: Props) {
             className="w-24 px-3 py-2 text-sm rounded-lg border border-neutral-300 dark:border-neutral-700 bg-transparent focus:outline-none focus:border-violet-400 transition"
           />
         </div>
+        <input
+          type="number"
+          placeholder="Mínimo de fanblys para aportar (default: 2)"
+          value={minContribution}
+          onChange={(e) => setMinContribution(e.target.value)}
+          className="w-full px-3 py-2 text-sm rounded-lg border border-neutral-300 dark:border-neutral-700 bg-transparent focus:outline-none focus:border-violet-400 transition"
+        />
 
         <div className="flex gap-2 justify-end">
           <button

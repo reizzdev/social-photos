@@ -13,15 +13,22 @@ interface Props {
   onFollow?: (userId: string) => void;
 }
 
-export default function CollectionFeed({ collections, currentUser, following: initialFollowing, onDelete, onTogglePrivacy, onFollow: externalOnFollow }: Props) {
+export default function CollectionFeed({
+  collections,
+  currentUser,
+  following: initialFollowing,
+  onDelete,
+  onTogglePrivacy,
+  onFollow: externalOnFollow,
+}: Props) {
   const [following, setFollowing] = useState<string[]>(initialFollowing ?? []);
 
-useEffect(() => {
-  setFollowing(initialFollowing ?? []);
-}, [initialFollowing]);
+  useEffect(() => {
+    setFollowing(initialFollowing ?? []);
+  }, [initialFollowing]);
 
   const handleFollow = (userId: string) => {
-    setFollowing((prev) => prev.includes(userId) ? prev : [...prev, userId]);
+    setFollowing((prev) => (prev.includes(userId) ? prev : [...prev, userId]));
     externalOnFollow?.(userId);
   };
   if (collections.length === 0) {

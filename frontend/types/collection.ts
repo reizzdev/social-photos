@@ -9,7 +9,9 @@ export interface Collection {
   deadline_at?: string;
   completed: boolean;
   created_at: string;
-is_private: boolean;
+  min_contribution?: number;
+  has_contributed?: boolean;
+  is_private: boolean;
   users?: {
     id: string;
     username: string;
@@ -35,4 +37,13 @@ export interface CreateCollectionDto {
   description?: string;
   goal_amount?: number;
   deadline_hours?: number;
+}
+
+export interface Props {
+  collection: Collection;
+  currentUser?: any;
+  following?: string[];
+  onFollow?: (userId: string) => void;
+  onDelete?: (id: string) => void;
+  onTogglePrivacy?: (id: string) => void;
 }

@@ -10,10 +10,17 @@ const ACCESS_OPTIONS = [
   { value: "goal", label: "🎯 Meta" },
 ];
 
-export default function PhotoCard({ photo, onDelete, onToggle, onSelect }: PhotoCardProps) {
+export default function PhotoCard({
+  photo,
+  onDelete,
+  onToggle,
+  onSelect,
+}: PhotoCardProps) {
   const [confirming, setConfirming] = useState(false);
   const [accessType, setAccessType] = useState(photo.access_type || "public");
-  const [collectionId, setCollectionId] = useState<string | null>(photo.collection_id || null);
+  const [collectionId, setCollectionId] = useState<string | null>(
+    photo.collection_id || null,
+  );
   const [collections, setCollections] = useState<any[]>([]);
   const [showCollectionPicker, setShowCollectionPicker] = useState(false);
 
@@ -53,7 +60,7 @@ export default function PhotoCard({ photo, onDelete, onToggle, onSelect }: Photo
       await api.patch(
         `/photos/${photo.id}/access`,
         { access_type: newAccess },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       setAccessType(newAccess);
       onToggle(photo.id);
@@ -68,12 +75,14 @@ export default function PhotoCard({ photo, onDelete, onToggle, onSelect }: Photo
       await api.patch(
         `/photos/${photo.id}/collection`,
         { collection_id: newCollectionId },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       setCollectionId(newCollectionId);
       setShowCollectionPicker(false);
     } catch (err: any) {
-      alert(err?.response?.data?.message || "No se puede mover, hay aportantes");
+      alert(
+        err?.response?.data?.message || "No se puede mover, hay aportantes",
+      );
     }
   };
 
@@ -126,8 +135,8 @@ export default function PhotoCard({ photo, onDelete, onToggle, onSelect }: Photo
                   c.id === collectionId
                     ? "bg-violet-500/10 text-violet-400"
                     : c.current_amount > 0
-                    ? "text-neutral-300 dark:text-neutral-600 cursor-not-allowed"
-                    : "text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                      ? "text-neutral-300 dark:text-neutral-600 cursor-not-allowed"
+                      : "text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800"
                 }`}
               >
                 {c.title}

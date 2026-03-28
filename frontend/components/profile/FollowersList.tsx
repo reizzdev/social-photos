@@ -3,7 +3,14 @@
 import Link from "next/link";
 import { FollowersListProps } from "@/types/user";
 
-export default function FollowersList({ title, users, onClose, isOwner, onRemoveFollower, onUnfollow }: FollowersListProps) {
+export default function FollowersList({
+  title,
+  users,
+  onClose,
+  isOwner,
+  onRemoveFollower,
+  onUnfollow,
+}: FollowersListProps) {
   return (
     <div
       className="fixed inset-0 bg-black/60 flex justify-center items-center z-50"
@@ -14,7 +21,9 @@ export default function FollowersList({ title, users, onClose, isOwner, onRemove
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-neutral-100 dark:border-neutral-800">
-          <h2 className="text-sm font-medium text-neutral-900 dark:text-white">{title}</h2>
+          <h2 className="text-sm font-medium text-neutral-900 dark:text-white">
+            {title}
+          </h2>
           <button
             onClick={onClose}
             className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-400 hover:text-neutral-600 transition text-sm"
@@ -25,10 +34,15 @@ export default function FollowersList({ title, users, onClose, isOwner, onRemove
 
         <div className="max-h-72 overflow-y-auto divide-y divide-neutral-100 dark:divide-neutral-800">
           {users.length === 0 ? (
-            <p className="text-sm text-neutral-400 text-center py-8">Sin usuarios aún</p>
+            <p className="text-sm text-neutral-400 text-center py-8">
+              Sin usuarios aún
+            </p>
           ) : (
             users.map((u) => (
-              <div key={u.id} className="flex items-center gap-3 px-5 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition">
+              <div
+                key={u.id}
+                className="flex items-center gap-3 px-5 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition"
+              >
                 <Link
                   href={`/${u.username}`}
                   onClick={onClose}

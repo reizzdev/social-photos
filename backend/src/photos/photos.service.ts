@@ -45,71 +45,83 @@ export class PhotosService {
     return photo;
   }
 
-  async findAll() {
-    return this.prisma.photos.findMany({
-      select: {
-        id: true,
-        user_id: true, // 👈 ESTA ES LA SOLUCIÓN
-        image_url: true,
-        like_count: true,
-        censored: true,
-              access_type: true,      // 👈 ¿está esto?
-      collection_id: true,    // 👈 ¿y esto?
-        created_at: true,
-
-        users: {
-          select: {
-            id: true,
-            username: true,
-            avatar_url: true,
-          },
-        },
-
-        photo_tags: {
-          include: {
-            tags: true,
-          },
-        },
-      },
-      orderBy: {
-        created_at: 'desc',
-      },
-    });
-  }
-
- async findByUser(userId: string) {
-  return this.prisma.photos.findMany({
-    where: { user_id: userId },
-
+async findAll(requesterId?: string) {
+  const photos = await this.prisma.photos.findMany({
     select: {
       id: true,
-      user_id: true, // 👈 NECESARIO
+      user_id: true,
       image_url: true,
       like_count: true,
       censored: true,
-      access_type: true,      // 👈
+      access_type: true,
       collection_id: true,
       created_at: true,
-
-      users: {       // 👈 NECESARIO
-        select: {
-          id: true,
-          username: true,
-          avatar_url: true,
-        },
+      users: {
+        select: { id: true, username: true, avatar_url: true },
       },
-
       photo_tags: {
-        include: {
-          tags: true,
-        },
+        include: { tags: true },
       },
     },
-
     orderBy: { created_at: 'desc' },
   });
+
+  if (!requesterId) return photos.map(p => ({ ...p, has_contributed: false }));
+
+  const contributions = await this.prisma.contributions.findMany({
+    where: { user_id: requesterId },
+    select: { collection_id: true },
+  });
+
+  const contributedIds = new Set(contributions.map(c => c.collection_id));
+
+  return photos.map(p => ({
+    ...p,
+    has_contributed: p.collection_id ? contributedIds.has(p.collection_id) : false,
+  }));
 }
 
+async findByUser(userId: string, requesterId?: string) {
+  const photos = await this.prisma.photos.findMany({
+    where: { user_id: userId },
+    select: {
+      id: true,
+      user_id: true,
+      image_url: true,
+      like_count: true,
+      censored: true,
+      access_type: true,
+      collection_id: true,
+      created_at: true,
+      users: {
+        select: { id: true, username: true, avatar_url: true },
+      },
+      photo_tags: {
+        include: { tags: true },
+      },
+    },
+    orderBy: { created_at: 'desc' },
+  });
+
+  if (!requesterId) return photos.map(p => ({ ...p, has_contributed: false }));
+
+  const contributions = await this.prisma.contributions.findMany({
+    where: { user_id: requesterId },
+    select: { collection_id: true },
+  });
+
+  const contributedIds = new Set(contributions.map(c => c.collection_id));
+const completedCollections = await this.prisma.collections.findMany({
+  where: { completed: true },
+  select: { id: true },
+});
+const completedIds = new Set(completedCollections.map(c => c.id));
+  return photos.map(p => ({
+    ...p,
+    has_contributed: p.collection_id ? contributedIds.has(p.collection_id) : false,
+  collection_completed: p.collection_id ? completedIds.has(p.collection_id) : false,
+  }));
+}
   async delete(userId: string, photoId: string) {
     const photo = await this.prisma.photos.findUnique({
       where: { id: photoId },

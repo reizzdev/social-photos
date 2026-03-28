@@ -54,5 +54,12 @@ export function useCollections() {
     }
   };
 
-  return { collections, loading, error, createCollection, deleteCollection, fetchCollections };
+  return {
+    collections,
+    loading,
+    error,
+    createCollection,
+    deleteCollection,
+    fetchCollections,
+  };
 }

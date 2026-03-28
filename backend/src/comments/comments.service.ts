@@ -1,4 +1,8 @@
-import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -52,7 +56,8 @@ export class CommentsService {
     });
 
     if (!comment) throw new NotFoundException('Comentario no encontrado');
-    if (comment.user_id !== userId) throw new ForbiddenException('No autorizado');
+    if (comment.user_id !== userId)
+      throw new ForbiddenException('No autorizado');
 
     return this.prisma.comments.delete({ where: { id: commentId } });
   }

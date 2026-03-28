@@ -24,7 +24,6 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-2xl p-8 w-full max-w-sm">
-        
         <h1 className="text-xl font-medium text-neutral-900 dark:text-white mb-1">
           Iniciar sesión
         </h1>
@@ -48,9 +47,7 @@ export default function LoginPage() {
             className="w-full px-4 py-2.5 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-transparent text-sm focus:outline-none focus:border-neutral-500"
           />
 
-          {error && (
-            <p className="text-xs text-red-500">{error}</p>
-          )}
+          {error && <p className="text-xs text-red-500">{error}</p>}
 
           <button
             onClick={handleLogin}
@@ -62,7 +59,10 @@ export default function LoginPage() {
 
         <p className="text-xs text-neutral-400 text-center mt-5">
           ¿No tienes cuenta?{" "}
-          <a href="/register" className="text-neutral-600 dark:text-neutral-300 hover:underline">
+          <a
+            href="/register"
+            className="text-neutral-600 dark:text-neutral-300 hover:underline"
+          >
             Regístrate
           </a>
         </p>

@@ -9,13 +9,23 @@ import { useCollections } from "@/hooks/useCollections";
 import { useState } from "react";
 
 export default function PhotosPage() {
-  const { photos, following, setFollowing, currentUser, selectedPhoto, setSelectedPhoto, showAuthModal, setShowAuthModal, handleFollow, handleLike } = usePhotosPage();
+  const {
+    photos,
+    following,
+    setFollowing,
+    currentUser,
+    selectedPhoto,
+    setSelectedPhoto,
+    showAuthModal,
+    setShowAuthModal,
+    handleFollow,
+    handleLike,
+  } = usePhotosPage();
   const { collections, deleteCollection } = useCollections();
   const [tab, setTab] = useState<"fotos" | "colecciones">("colecciones");
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
-
       {/* Tabs */}
       <div className="flex gap-1 mb-6 bg-neutral-100 dark:bg-neutral-900 rounded-xl p-1">
         <button
@@ -41,12 +51,12 @@ export default function PhotosPage() {
       </div>
 
       {tab === "colecciones" && (
-       <CollectionFeed
-  collections={collections}
-  currentUser={currentUser}
-  following={following}
-  onFollow={handleFollow}
-/>
+        <CollectionFeed
+          collections={collections}
+          currentUser={currentUser}
+          following={following}
+          onFollow={handleFollow}
+        />
       )}
 
       {tab === "fotos" && (
@@ -73,9 +83,7 @@ export default function PhotosPage() {
         />
       )}
 
-      {showAuthModal && (
-        <AuthModal onClose={() => setShowAuthModal(false)} />
-      )}
+      {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
     </div>
   );
 }

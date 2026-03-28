@@ -46,9 +46,9 @@ export default function ProfileHeader({
         {isOwner && (
           <button
             onClick={() => setEditingAvatar(!editingAvatar)}
-            className="absolute bottom-0 right-0 w-7 h-7 flex items-center justify-center bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 rounded-full border-2 border-white dark:border-neutral-900 hover:scale-110 transition text-xs"
+            className="absolute bottom-0 right-0 w-12 h-7 flex items-center justify-center bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 rounded-full border-2 border-white dark:border-neutral-900 transition text-xs cursor-pointer"
           >
-            ✏️
+            editar
           </button>
         )}
       </div>

@@ -114,8 +114,13 @@ export default function PhotoGrid({
         const authorId = photo.user_id ?? photo.users?.id;
         const isOwner = currentUser?.id === authorId;
         const followsUser = following?.includes(authorId) ?? false;
-        const isGoalGated = photo.access_type === "goal" && !isOwner;
-        const isFollowGated = (photo.censored || photo.access_type === "follow") && !followsUser && !isOwner && !isGoalGated;
+        
+        const isGoalGated = photo.access_type === "goal" && !isOwner && !(photo.has_contributed && photo.collection_completed);
+        const isFollowGated =
+          (photo.censored || photo.access_type === "follow") &&
+          !followsUser &&
+          !isOwner &&
+          !isGoalGated;
         const shouldBlur = isGoalGated || isFollowGated;
 
         return (
@@ -272,7 +277,9 @@ export default function PhotoGrid({
                 {onDelete && (
                   <button
                     onClick={() => handleDelete(photo.id)}
-                    title={confirmingId === photo.id ? "¿Confirmar?" : "Eliminar"}
+                    title={
+                      confirmingId === photo.id ? "¿Confirmar?" : "Eliminar"
+                    }
                     className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold transition flex-shrink-0 ${
                       confirmingId === photo.id
                         ? "bg-red-500 text-white animate-pulse"

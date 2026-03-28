@@ -1,6 +1,17 @@
-import {Body, Controller, Get, Post, UseGuards, Req, Param, Delete, Patch} from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  UseGuards,
+  Req,
+  Param,
+  Delete,
+  Patch,
+} from '@nestjs/common';
 import { PhotosService } from './photos.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from '../auth/optional-jwt.guard';
 import { CreateDto } from './dto/create.dto';
 
 @Controller('photos')
@@ -9,70 +20,62 @@ export class PhotosController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(
-    @Body() body: CreateDto, 
-    @Req() req: any) {
+  create(@Body() body: CreateDto, @Req() req: any) {
     return this.photosService.createPhoto(req.user.userId, body);
   }
 
+  @UseGuards(OptionalJwtAuthGuard)
   @Get()
-  findAll() {
-    return this.photosService.findAll();
+  findAll(@Req() req: any) {
+    return this.photosService.findAll(req.user?.userId);
   }
 
+  @UseGuards(OptionalJwtAuthGuard)
   @Get('user/:id')
-  findByUser(
-    @Param('id') id: string) {
-    return this.photosService.findByUser(id);
+  findByUser(@Param('id') id: string, @Req() req: any) {
+    return this.photosService.findByUser(id, req.user?.userId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  delete(
-    @Param('id') id: string, 
-    @Req() req: any) {
+  delete(@Param('id') id: string, @Req() req: any) {
     return this.photosService.delete(req.user.userId, id);
   }
 
   @Patch('censor/:id')
-  async toggleCensor(
-    @Param('id') id: string) {
+  async toggleCensor(@Param('id') id: string) {
     return this.photosService.toggleCensor(id);
   }
 
   @Get('tag/:name')
-  async getPhotosByTag(
-    @Param('name') name: string) {
+  async getPhotosByTag(@Param('name') name: string) {
     return this.photosService.getByTag(name);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('like/:photoId')
-  async toggleLike(
-    @Param('photoId') photoId: string, 
-    @Req() req) {
+  async toggleLike(@Param('photoId') photoId: string, @Req() req) {
     const userId = req.user.userId;
-
     return this.photosService.toggleLike(photoId, userId);
   }
 
   @UseGuards(JwtAuthGuard)
-@Patch(':id/access')
-updateAccess(
-  @Param('id') id: string,
-  @Body() body: { access_type: string },
-  @Req() req: any,
-) {
-  return this.photosService.updateAccess(id, req.user.userId, body.access_type);
-}
+  @Patch(':id/access')
+  updateAccess(
+    @Param('id') id: string,
+    @Body() body: { access_type: string },
+    @Req() req: any,
+  ) {
+    return this.photosService.updateAccess(id, req.user.userId, body.access_type);
+  }
 
-@UseGuards(JwtAuthGuard)
-@Patch(':id/collection')
-updateCollection(
-  @Param('id') id: string,
-  @Body() body: { collection_id: string | null },
-  @Req() req: any,
-) {
-  return this.photosService.updateCollection(id, req.user.userId, body.collection_id);
-}
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id/collection')
+  updateCollection(
+    @Param('id') id: string,
+    @Body() body: { collection_id: string | null },
+    @Req() req: any,
+  ) {
+    return this.photosService.updateCollection(id, req.user.userId, body.collection_id);
+  }
 }

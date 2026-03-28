@@ -49,11 +49,11 @@ export function usePhotosPage() {
       await api.post(
         `/users/follow/${userId}`,
         {},
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       setFollowing((prev) =>
-        prev.includes(userId) ? prev : [...prev, userId]
+        prev.includes(userId) ? prev : [...prev, userId],
       );
     } catch (err) {
       console.error(err);
@@ -66,13 +66,13 @@ export function usePhotosPage() {
       const res = await api.post(
         `/photos/like/${photoId}`,
         {},
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       setPhotos((prev) =>
         prev.map((p) =>
-          p.id === photoId ? { ...p, like_count: res.data.likes } : p
-        )
+          p.id === photoId ? { ...p, like_count: res.data.likes } : p,
+        ),
       );
 
       if (selectedPhoto && selectedPhoto.id === photoId) {

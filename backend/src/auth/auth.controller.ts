@@ -8,18 +8,12 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('register')
-  register(
-    @Body() body: RegisterDto) {
-    return this.authService.register(
-     body
-    );
+  register(@Body() body: RegisterDto) {
+    return this.authService.register(body);
   }
 
   @Post('login')
-  login(
-    @Body() body: LoginDto) {
-    return this.authService.login(
-      body
-    );
+  login(@Body() body: LoginDto) {
+    return this.authService.login(body);
   }
 }

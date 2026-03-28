@@ -4,7 +4,14 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { api } from "@/services/api";
 
-import { getMe, getUserByUsername, getFollowers, getFollowing, followUser, unfollowUser } from "@/services/useService";
+import {
+  getMe,
+  getUserByUsername,
+  getFollowers,
+  getFollowing,
+  followUser,
+  unfollowUser,
+} from "@/services/useService";
 import { getPhotosByUser, toggleLike } from "@/services/photoService";
 
 export function useUserProfile() {
@@ -45,18 +52,18 @@ export function useUserProfile() {
       const token = localStorage.getItem("token");
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
-      const [photosData, followersData, followingData, collectionsRes] = await Promise.all([
-        getPhotosByUser(userData.id),
-        getFollowers(userData.id),
-        getFollowing(userData.id),
-        api.get(`/collections/user/${userData.id}`, { headers }),
-      ]);
+      const [photosData, followersData, followingData, collectionsRes] =
+        await Promise.all([
+          getPhotosByUser(userData.id),
+          getFollowers(userData.id),
+          getFollowing(userData.id),
+          api.get(`/collections/user/${userData.id}`, { headers }),
+        ]);
 
       setPhotos(photosData);
       setFollowers(followersData);
       setFollowing(followingData);
       setCollections(collectionsRes.data);
-
     } catch (err) {
       console.error(err);
       setError("Error cargando perfil");
@@ -79,7 +86,7 @@ export function useUserProfile() {
     const newFollowers = await getFollowers(targetId);
     setFollowers(newFollowers);
     setMyFollowingIds((prev) =>
-      prev.includes(targetId) ? prev : [...prev, targetId]
+      prev.includes(targetId) ? prev : [...prev, targetId],
     );
   };
 
@@ -101,7 +108,9 @@ export function useUserProfile() {
       const res = await toggleLike(photoId);
       const newLikes = res.likes;
       setPhotos((prev) =>
-        prev.map((p) => (p.id === photoId ? { ...p, like_count: newLikes } : p))
+        prev.map((p) =>
+          p.id === photoId ? { ...p, like_count: newLikes } : p,
+        ),
       );
       if (selectedPhoto && selectedPhoto.id === photoId) {
         setSelectedPhoto({ ...selectedPhoto, like_count: newLikes });
@@ -116,6 +125,7 @@ export function useUserProfile() {
     description?: string;
     goal_amount?: number;
     deadline_hours?: number;
+    min_contribution?: number;
   }) => {
     try {
       const token = localStorage.getItem("token");
@@ -144,11 +154,17 @@ export function useUserProfile() {
   const toggleCollectionPrivacy = async (id: string) => {
     try {
       const token = localStorage.getItem("token");
-      const res = await api.patch(`/collections/${id}/privacy`, {}, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.patch(
+        `/collections/${id}/privacy`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
       setCollections((prev) =>
-        prev.map((c) => c.id === id ? { ...c, is_private: res.data.is_private } : c)
+        prev.map((c) =>
+          c.id === id ? { ...c, is_private: res.data.is_private } : c,
+        ),
       );
     } catch (err) {
       console.error(err);
@@ -171,7 +187,9 @@ export function useUserProfile() {
     try {
       await api.patch(`/photos/censor/${photoId}`);
       setPhotos((prev) =>
-        prev.map((p) => p.id === photoId ? { ...p, censored: !p.censored } : p)
+        prev.map((p) =>
+          p.id === photoId ? { ...p, censored: !p.censored } : p,
+        ),
       );
     } catch (err) {
       console.error(err);
@@ -179,14 +197,30 @@ export function useUserProfile() {
   };
 
   return {
-    user, me, photos, followers, following, myFollowingIds,
+    user,
+    me,
+    photos,
+    followers,
+    following,
+    myFollowingIds,
     collections,
-    selectedPhoto, setSelectedPhoto,
-    showFollowers, setShowFollowers,
-    showFollowing, setShowFollowing,
-    loading, error,
-    isFollowing, handleFollow, handleUnfollow, removeFollower,
-    handleLike, createCollection, deleteCollection, toggleCollectionPrivacy,
-    deletePhoto, toggleCensorPhoto,
+    selectedPhoto,
+    setSelectedPhoto,
+    showFollowers,
+    setShowFollowers,
+    showFollowing,
+    setShowFollowing,
+    loading,
+    error,
+    isFollowing,
+    handleFollow,
+    handleUnfollow,
+    removeFollower,
+    handleLike,
+    createCollection,
+    deleteCollection,
+    toggleCollectionPrivacy,
+    deletePhoto,
+    toggleCensorPhoto,
   };
 }

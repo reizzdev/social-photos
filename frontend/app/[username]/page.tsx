@@ -21,7 +21,8 @@ export default function ProfilePage() {
   const isOwner = profile.me?.id === profile.user?.id;
 
   if (profile.loading) return <p className="text-center mt-10">Cargando...</p>;
-  if (profile.error) return <p className="text-center mt-10 text-red-500">{profile.error}</p>;
+  if (profile.error)
+    return <p className="text-center mt-10 text-red-500">{profile.error}</p>;
 
   return (
     <div className="max-w-2xl mx-auto p-4">
@@ -57,46 +58,48 @@ export default function ProfilePage() {
         <div className="flex flex-col gap-4">
           {isOwner && <CreateCollection onCreate={profile.createCollection} />}
           <CollectionFeed
-  collections={profile.collections}
-  currentUser={profile.me}
-  following={profile.myFollowingIds}
-  onDelete={isOwner ? profile.deleteCollection : undefined}
-  onTogglePrivacy={isOwner ? profile.toggleCollectionPrivacy : undefined}
-  onFollow={profile.handleFollow}
-/>
+            collections={profile.collections}
+            currentUser={profile.me}
+            following={profile.myFollowingIds}
+            onDelete={isOwner ? profile.deleteCollection : undefined}
+            onTogglePrivacy={
+              isOwner ? profile.toggleCollectionPrivacy : undefined
+            }
+            onFollow={profile.handleFollow}
+          />
         </div>
       )}
 
       {/* Tab fotos */}
-     {tab === "fotos" && (
-  <div className="flex flex-col gap-6">
-    {isOwner && <UploadPhoto />}
-    {isOwner ? (
-      <div className="flex flex-wrap gap-4">
-       {profile.photos.map((photo) => (
-  <PhotoCard
-    key={photo.id}
-    photo={photo}
-    onDelete={profile.deletePhoto}
-    onToggle={profile.toggleCensorPhoto}
-    onSelect={profile.setSelectedPhoto}
-  />
-))}
-      </div>
-    ) : (
-      <PhotoGrid
-        photos={profile.photos}
-        currentUser={profile.me}
-        following={profile.myFollowingIds}
-        handleLike={profile.handleLike}
-        handleFollow={profile.handleFollow}
-        setSelectedPhoto={profile.setSelectedPhoto}
-        setShowAuthModal={setShowAuthModal}
-        showTags
-      />
-    )}
-  </div>
-)}
+      {tab === "fotos" && (
+        <div className="flex flex-col gap-6">
+          {isOwner && <UploadPhoto />}
+          {isOwner ? (
+            <div className="flex flex-wrap gap-4">
+              {profile.photos.map((photo) => (
+                <PhotoCard
+                  key={photo.id}
+                  photo={photo}
+                  onDelete={profile.deletePhoto}
+                  onToggle={profile.toggleCensorPhoto}
+                  onSelect={profile.setSelectedPhoto}
+                />
+              ))}
+            </div>
+          ) : (
+            <PhotoGrid
+              photos={profile.photos}
+              currentUser={profile.me}
+              following={profile.myFollowingIds}
+              handleLike={profile.handleLike}
+              handleFollow={profile.handleFollow}
+              setSelectedPhoto={profile.setSelectedPhoto}
+              setShowAuthModal={setShowAuthModal}
+              showTags
+            />
+          )}
+        </div>
+      )}
 
       {/* Modales */}
       {profile.selectedPhoto && (

@@ -33,7 +33,10 @@ export default function ProfilePage() {
       const userRes = await api.get("/users/me", getAuth());
       setUser(userRes.data);
 
-      const photosRes = await api.get(`/photos/user/${userRes.data.id}`, getAuth());
+      const photosRes = await api.get(
+        `/photos/user/${userRes.data.id}`,
+        getAuth(),
+      );
       setPhotos(photosRes.data);
 
       const f = await api.get(`/users/followers/${userRes.data.id}`);
@@ -109,14 +112,24 @@ export default function ProfilePage() {
       {tab === "fotos" && (
         <div className="flex flex-col gap-6">
           <UploadPhoto />
-          <h2 className="text-sm font-medium text-neutral-900 dark:text-white">Mis fotos</h2>
+          <h2 className="text-sm font-medium text-neutral-900 dark:text-white">
+            Mis fotos
+          </h2>
           <div className="flex flex-wrap gap-4">
             {photos.map((photo) => (
               <PhotoCard
                 key={photo.id}
                 photo={photo}
-                onDelete={(id) => setPhotos((prev) => prev.filter((p) => p.id !== id))}
-                onToggle={(id) => setPhotos((prev) => prev.map((p) => p.id === id ? { ...p, censored: !p.censored } : p))}
+                onDelete={(id) =>
+                  setPhotos((prev) => prev.filter((p) => p.id !== id))
+                }
+                onToggle={(id) =>
+                  setPhotos((prev) =>
+                    prev.map((p) =>
+                      p.id === id ? { ...p, censored: !p.censored } : p,
+                    ),
+                  )
+                }
               />
             ))}
           </div>

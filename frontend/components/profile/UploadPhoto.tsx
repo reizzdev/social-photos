@@ -6,7 +6,9 @@ import { api } from "@/services/api";
 export default function UploadPhoto() {
   const [imageUrl, setImageUrl] = useState("");
   const [tags, setTags] = useState("");
-  const [accessType, setAccessType] = useState<"public" | "follow" | "goal">("public");
+  const [accessType, setAccessType] = useState<"public" | "follow" | "goal">(
+    "public",
+  );
   const [collectionId, setCollectionId] = useState("");
   const [collections, setCollections] = useState<any[]>([]);
   const [message, setMessage] = useState("");
@@ -31,7 +33,10 @@ export default function UploadPhoto() {
     if (!imageUrl.trim()) return;
     try {
       setLoading(true);
-      const tagArray = tags.split(",").map((t) => t.trim()).filter((t) => t !== "");
+      const tagArray = tags
+        .split(",")
+        .map((t) => t.trim())
+        .filter((t) => t !== "");
 
       await api.post("/photos", {
         image_url: imageUrl,
@@ -57,7 +62,6 @@ export default function UploadPhoto() {
 
   return (
     <div className="bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-4 mt-6">
-
       {/* Preview + inputs */}
       <div className="flex gap-3 mb-3">
         <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center">
@@ -68,10 +72,18 @@ export default function UploadPhoto() {
               onError={(e) => (e.currentTarget.style.display = "none")}
             />
           ) : (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-neutral-400">
-              <rect x="3" y="3" width="18" height="18" rx="2"/>
-              <circle cx="8.5" cy="8.5" r="1.5"/>
-              <path d="m21 15-5-5L5 21"/>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              className="text-neutral-400"
+            >
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <path d="m21 15-5-5L5 21" />
             </svg>
           )}
         </div>
@@ -99,10 +111,13 @@ export default function UploadPhoto() {
         <div className="flex flex-wrap gap-1.5 mb-3">
           {tags.split(",").map((t, i) =>
             t.trim() ? (
-              <span key={i} className="text-xs bg-violet-500/10 text-violet-500 px-2.5 py-0.5 rounded-full">
+              <span
+                key={i}
+                className="text-xs bg-violet-500/10 text-violet-500 px-2.5 py-0.5 rounded-full"
+              >
                 #{t.trim()}
               </span>
-            ) : null
+            ) : null,
           )}
         </div>
       )}
@@ -119,7 +134,11 @@ export default function UploadPhoto() {
                 : "border-neutral-300 dark:border-neutral-700 text-neutral-500 hover:border-neutral-400"
             }`}
           >
-            {type === "public" ? "🌐 Público" : type === "follow" ? "👥 Follow" : "🎯 Meta"}
+            {type === "public"
+              ? "🌐 Público"
+              : type === "follow"
+                ? "👥 Follow"
+                : "🎯 Meta"}
           </button>
         ))}
       </div>
@@ -133,7 +152,9 @@ export default function UploadPhoto() {
         >
           <option value="">Sin colección</option>
           {collections.map((c) => (
-            <option key={c.id} value={c.id}>{c.title}</option>
+            <option key={c.id} value={c.id}>
+              {c.title}
+            </option>
           ))}
         </select>
       )}
@@ -141,8 +162,14 @@ export default function UploadPhoto() {
       {/* Footer */}
       <div className="flex items-center justify-between gap-3">
         {message ? (
-          <p className={`text-xs ${isError ? "text-red-500" : "text-green-500"}`}>{message}</p>
-        ) : <span />}
+          <p
+            className={`text-xs ${isError ? "text-red-500" : "text-green-500"}`}
+          >
+            {message}
+          </p>
+        ) : (
+          <span />
+        )}
 
         <button
           onClick={handleUpload}
